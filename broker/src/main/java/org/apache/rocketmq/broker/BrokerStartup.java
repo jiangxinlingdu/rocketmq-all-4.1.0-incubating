@@ -93,6 +93,11 @@ public class BrokerStartup {
             }
 
             final BrokerConfig brokerConfig = new BrokerConfig();
+            
+            //如果我们直接运行的话会报一个错误
+            //Please set the ROCKETMQ_HOME variable in your environment to match the location of the RocketMQ installation
+            brokerConfig.setRocketmqHome("D:\\\\eclipse-workspace\\\\rocketmq-rocketmq-all-4.1.0-incubating\\\\rocketmq-rocketmq-all-4.1.0-incubating\\\\distribution");
+            brokerConfig.setNamesrvAddr("localhost:9876");
             final NettyServerConfig nettyServerConfig = new NettyServerConfig();
             final NettyClientConfig nettyClientConfig = new NettyClientConfig();
             nettyServerConfig.setListenPort(10911);
