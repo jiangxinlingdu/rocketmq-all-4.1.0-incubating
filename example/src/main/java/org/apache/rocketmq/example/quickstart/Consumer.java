@@ -28,6 +28,9 @@ import org.apache.rocketmq.common.message.MessageExt;
 /**
  * This example shows how to subscribe and consume messages using providing {@link DefaultMQPushConsumer}.
  */
+/**
+ * Consumer，订阅消息
+ */
 public class Consumer {
 
     public static void main(String[] args) throws InterruptedException, MQClientException {
@@ -35,8 +38,13 @@ public class Consumer {
         /*
          * Instantiate with specified consumer group name.
          */
+    	
+    	/**
+    	 * Consumer Group,非常重要的概念，后续会慢慢补充
+    	 */
+    	
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("please_rename_unique_group_name_4");
-        //指定NameServer地址
+        //指定NameServer地址，多个地址以 ; 隔开
         consumer.setNamesrvAddr("127.0.0.1:9876");
 
         /*
@@ -54,6 +62,10 @@ public class Consumer {
         /*
          * Specify where to start in case the specified consumer group is a brand new one.
          */
+        /**
+         * 设置Consumer第一次启动是从队列头部开始消费还是队列尾部开始消费
+         * 如果非第一次启动，那么按照上次消费的位置继续消费
+         */
         consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
 
         /*
@@ -70,7 +82,7 @@ public class Consumer {
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs,
                 ConsumeConcurrentlyContext context) {
                 System.out.printf(Thread.currentThread().getName() + " Receive New Messages: " + msgs + "%n");
-                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;  
             }
         });
 

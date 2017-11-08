@@ -75,6 +75,9 @@ public class SendMessageRequestHeaderV2 implements CommandCustomHeader {
 
     public static SendMessageRequestHeaderV2 createSendMessageRequestHeaderV2(final SendMessageRequestHeader v1) {
         SendMessageRequestHeaderV2 v2 = new SendMessageRequestHeaderV2();
+        /**
+         * 进行转换，这样网络传输数据就比较小了，学习下
+         */
         v2.a = v1.getProducerGroup();
         v2.b = v1.getTopic();
         v2.c = v1.getDefaultTopic();
