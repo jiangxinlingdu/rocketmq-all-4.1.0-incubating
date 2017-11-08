@@ -56,7 +56,7 @@ public class NamesrvStartup {
      * 
      * 这里的这个与后面的BrokerStartup有些很像 
      * 设置版本
-     * socket缓冲区
+     * socket缓冲区等等
      * 
      * 
      */
@@ -65,12 +65,12 @@ public class NamesrvStartup {
     	//设置版本
         System.setProperty(RemotingCommand.REMOTING_VERSION_KEY, Integer.toString(MQVersion.CURRENT_VERSION));
 
-     // Socket发送缓冲区大小
+        // Socket发送缓冲区大小
         if (null == System.getProperty(NettySystemConfig.COM_ROCKETMQ_REMOTING_SOCKET_SNDBUF_SIZE)) {
             NettySystemConfig.socketSndbufSize = 4096;
         }
 
-     // Socket接收缓冲区大小
+        // Socket接收缓冲区大小
         if (null == System.getProperty(NettySystemConfig.COM_ROCKETMQ_REMOTING_SOCKET_RCVBUF_SIZE)) {
             NettySystemConfig.socketRcvbufSize = 4096;
         }

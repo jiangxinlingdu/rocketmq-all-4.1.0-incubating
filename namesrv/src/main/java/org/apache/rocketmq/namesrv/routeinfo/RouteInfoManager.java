@@ -737,6 +737,11 @@ public class RouteInfoManager {
     }
 }
 
+/**
+ * 
+ * 当前存活的Broker  定时器10s更新一次
+ *
+ */
 class BrokerLiveInfo {
     private long lastUpdateTimestamp;
     private DataVersion dataVersion;

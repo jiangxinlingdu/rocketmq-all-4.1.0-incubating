@@ -89,7 +89,7 @@ public class NamesrvController {
             public void run() {
                 NamesrvController.this.routeInfoManager.scanNotActiveBroker();
             }
-        }, 5, 10, TimeUnit.SECONDS);
+        }, 5, 10, TimeUnit.SECONDS); //每隔10s扫描broker,维护当前存活的Broker信息
 
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
@@ -97,7 +97,7 @@ public class NamesrvController {
             public void run() {
                 NamesrvController.this.kvConfigManager.printAllPeriodically();
             }
-        }, 1, 10, TimeUnit.MINUTES);
+        }, 1, 10, TimeUnit.MINUTES); //每隔10s打印KVConfig信息。
 
         return true;
     }
