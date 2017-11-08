@@ -150,6 +150,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
                 }
             });
 
+        //netty 服务端
         ServerBootstrap childHandler =
             this.serverBootstrap.group(this.eventLoopGroupBoss, this.eventLoopGroupSelector)
                 .channel(useEpoll() ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
