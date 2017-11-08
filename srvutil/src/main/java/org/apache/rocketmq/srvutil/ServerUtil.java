@@ -24,6 +24,11 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+/**
+ * 
+ * 只提供Server程序依赖，目的为了拆解客户端依赖，尽可能减少客户端的依赖
+ *
+ */
 public class ServerUtil {
 
     public static Options buildCommandlineOptions(final Options options) {

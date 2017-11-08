@@ -70,15 +70,19 @@ public class NamesrvController {
 
     public boolean initialize() {
 
+    	// 加载KV配置
         this.kvConfigManager.load();
 
+       // 初始化通信层
         this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.brokerHousekeepingService);
 
+        // 初始化固定线程池
         this.remotingExecutor =
             Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(), new ThreadFactoryImpl("RemotingExecutorThread_"));
 
         this.registerProcessor();
 
+     // 增加定时任务
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
