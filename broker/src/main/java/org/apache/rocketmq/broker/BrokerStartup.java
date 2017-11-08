@@ -73,18 +73,23 @@ public class BrokerStartup {
     }
 
     public static BrokerController createBrokerController(String[] args) {
+    	//设置版本
         System.setProperty(RemotingCommand.REMOTING_VERSION_KEY, Integer.toString(MQVersion.CURRENT_VERSION));
 
+        // Socket发送缓冲区大小
         if (null == System.getProperty(NettySystemConfig.COM_ROCKETMQ_REMOTING_SOCKET_SNDBUF_SIZE)) {
             NettySystemConfig.socketSndbufSize = 131072;
         }
 
+     // Socket接收缓冲区大小
         if (null == System.getProperty(NettySystemConfig.COM_ROCKETMQ_REMOTING_SOCKET_RCVBUF_SIZE)) {
             NettySystemConfig.socketRcvbufSize = 131072;
         }
 
         try {
-            //PackageConflictDetect.detectFastjson();
+            //PackageConflictDetect.detectFastjson();    
+        	
+        	// 解析命令行
             Options options = ServerUtil.buildCommandlineOptions(new Options());
             commandLine = ServerUtil.parseCmdLine("mqbroker", args, buildCommandlineOptions(options),
                 new PosixParser());
@@ -92,22 +97,28 @@ public class BrokerStartup {
                 System.exit(-1);
             }
 
+            // 初始化配置文件
             final BrokerConfig brokerConfig = new BrokerConfig();
             
             //如果我们直接运行的话会报一个错误
             //Please set the ROCKETMQ_HOME variable in your environment to match the location of the RocketMQ installation
             brokerConfig.setRocketmqHome("D:\\\\eclipse-workspace\\\\rocketmq-rocketmq-all-4.1.0-incubating\\\\rocketmq-rocketmq-all-4.1.0-incubating\\\\distribution");
             brokerConfig.setNamesrvAddr("localhost:9876");
+            
             final NettyServerConfig nettyServerConfig = new NettyServerConfig();
             final NettyClientConfig nettyClientConfig = new NettyClientConfig();
             nettyServerConfig.setListenPort(10911);
+            
+            //配置信息
             final MessageStoreConfig messageStoreConfig = new MessageStoreConfig();
 
+            // 如果是slave，修改默认值 - 10
             if (BrokerRole.SLAVE == messageStoreConfig.getBrokerRole()) {
                 int ratio = messageStoreConfig.getAccessMessageInMemoryMaxRatio() - 10;
                 messageStoreConfig.setAccessMessageInMemoryMaxRatio(ratio);
             }
 
+            // 指定配置文件
             if (commandLine.hasOption('c')) {
                 String file = commandLine.getOptionValue('c');
                 if (file != null) {
@@ -135,12 +146,13 @@ public class BrokerStartup {
                 System.exit(-2);
             }
 
+            //获取namesrv地址
             String namesrvAddr = brokerConfig.getNamesrvAddr();
             if (null != namesrvAddr) {
                 try {
-                    String[] addrArray = namesrvAddr.split(";");
+                    String[] addrArray = namesrvAddr.split(";");  //看到这里就知道为什么多个以 ; 分隔了
                     for (String addr : addrArray) {
-                        RemotingUtil.string2SocketAddress(addr);
+                        RemotingUtil.string2SocketAddress(addr); //转换SocketAddress对象
                     }
                 } catch (Exception e) {
                     System.out.printf(
@@ -150,13 +162,14 @@ public class BrokerStartup {
                 }
             }
 
+            // BrokerId事项
             switch (messageStoreConfig.getBrokerRole()) {
                 case ASYNC_MASTER:
                 case SYNC_MASTER:
-                    brokerConfig.setBrokerId(MixAll.MASTER_ID);
+                    brokerConfig.setBrokerId(MixAll.MASTER_ID);    // 知道为什么主是 0  
                     break;
                 case SLAVE:
-                    if (brokerConfig.getBrokerId() <= 0) {
+                    if (brokerConfig.getBrokerId() <= 0) {   //从必须 > 0
                         System.out.printf("Slave's brokerId must be > 0");
                         System.exit(-3);
                     }
@@ -166,6 +179,7 @@ public class BrokerStartup {
                     break;
             }
 
+         // Master监听Slave请求的端口，默认为服务端口+1
             messageStoreConfig.setHaListenPort(nettyServerConfig.getListenPort() + 1);
             LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
             JoranConfigurator configurator = new JoranConfigurator();
