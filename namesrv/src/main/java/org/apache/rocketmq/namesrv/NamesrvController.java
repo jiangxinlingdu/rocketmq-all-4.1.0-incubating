@@ -34,23 +34,30 @@ import org.apache.rocketmq.remoting.netty.NettyRemotingServer;
 import org.apache.rocketmq.remoting.netty.NettyServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/**
+ * Name Server服务控制
+ */
 public class NamesrvController {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
-
+     // Name Server配置
     private final NamesrvConfig namesrvConfig;
-
+    // 通信层配置
     private final NettyServerConfig nettyServerConfig;
-
+    // 定时线程
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
         "NSScheduledThread"));
+    
+    /**
+     * 核心数据结构
+     */
     private final KVConfigManager kvConfigManager;
     private final RouteInfoManager routeInfoManager;
-
+    
+    // 服务端通信层对象
     private RemotingServer remotingServer;
-
+    // 接收Broker连接事件
     private BrokerHousekeepingService brokerHousekeepingService;
-
+    // 服务端网络请求处理线程池
     private ExecutorService remotingExecutor;
 
     private Configuration configuration;

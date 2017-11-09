@@ -54,7 +54,7 @@ public class NamesrvStartup {
 
     /**
      * 
-     * 这里的这个与后面的BrokerStartup有些很像 
+     * 这里的这个与后面的BrokerStartup有些很像 都是
      * 设置版本
      * socket缓冲区等等
      * 
@@ -136,18 +136,19 @@ public class NamesrvStartup {
             MixAll.printObjectProperties(log, namesrvConfig);
             MixAll.printObjectProperties(log, nettyServerConfig);
 
-            // 初始化服务控制对象
+            // 服务控制对象
             final NamesrvController controller = new NamesrvController(namesrvConfig, nettyServerConfig); 
 
             // remember all configs to prevent discard
             controller.getConfiguration().registerConfig(properties);
-
+            //初始化服务控制对象
             boolean initResult = controller.initialize();
             if (!initResult) {
                 controller.shutdown();
                 System.exit(-3);
             }
 
+            //注册shutdown钩子
             Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(log, new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
@@ -163,7 +164,7 @@ public class NamesrvStartup {
             log.info(tip);
             System.out.printf(tip + "%n");
 
-            return controller;
+            return controller;  //不return又咋滴？
         } catch (Throwable e) {
             e.printStackTrace();
             System.exit(-1);
@@ -172,6 +173,7 @@ public class NamesrvStartup {
         return null;
     }
 
+    //个人觉得这里用private更合适
     public static Options buildCommandlineOptions(final Options options) {
         Option opt = new Option("c", "configFile", true, "Name server config properties file");
         opt.setRequired(false);
