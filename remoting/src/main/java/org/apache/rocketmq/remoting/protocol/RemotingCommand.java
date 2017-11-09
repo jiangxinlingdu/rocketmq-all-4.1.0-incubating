@@ -31,13 +31,20 @@ import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Remoting模块中，服务器与客户端通过传递RemotingCommand来交互
+ */
 public class RemotingCommand {
     public static final String SERIALIZE_TYPE_PROPERTY = "rocketmq.serialize.type";
     public static final String SERIALIZE_TYPE_ENV = "ROCKETMQ_SERIALIZE_TYPE";
     public static final String REMOTING_VERSION_KEY = "rocketmq.remoting.version";
     private static final Logger log = LoggerFactory.getLogger(RemotingHelper.ROCKETMQ_REMOTING);
+   
     private static final int RPC_TYPE = 0; // 0, REQUEST_COMMAND
+    // 1, RESPONSE_COMMAND
+    
     private static final int RPC_ONEWAY = 1; // 0, RPC
+    // 1, Oneway
     private static final Map<Class<? extends CommandCustomHeader>, Field[]> CLASS_HASH_MAP =
         new HashMap<Class<? extends CommandCustomHeader>, Field[]>();
     private static final Map<Class, String> CANONICAL_NAME_CACHE = new HashMap<Class, String>();
@@ -68,7 +75,9 @@ public class RemotingCommand {
             }
         }
     }
-
+    /**
+     * Header 部分
+     */
     private int code;
     private LanguageCode language = LanguageCode.JAVA;
     private int version = 0;
@@ -79,12 +88,17 @@ public class RemotingCommand {
     private transient CommandCustomHeader customHeader;
 
     private SerializeType serializeTypeCurrentRPC = serializeTypeConfigInThisServer;
-
+    /**
+     * Body 部分
+     */
     private transient byte[] body;
 
     protected RemotingCommand() {
     }
-
+    
+    /**
+     * 只有通信层内部会调用，业务不会调用
+     */
     public static RemotingCommand createRequestCommand(int code, CommandCustomHeader customHeader) {
         RemotingCommand cmd = new RemotingCommand();
         cmd.setCode(code);
@@ -231,6 +245,10 @@ public class RemotingCommand {
         this.customHeader = customHeader;
     }
 
+    /**
+     * 
+     *解码过程
+     */
     public CommandCustomHeader decodeCommandCustomHeader(
         Class<? extends CommandCustomHeader> classHeader) throws RemotingCommandException {
         CommandCustomHeader objectHeader;
@@ -372,6 +390,9 @@ public class RemotingCommand {
         }
     }
 
+    /**
+     * 编码过程
+     */
     public void makeCustomHeaderToNet() {
         if (this.customHeader != null) {
             Field[] fields = getClazzFields(customHeader.getClass());
@@ -403,7 +424,10 @@ public class RemotingCommand {
     public ByteBuffer encodeHeader() {
         return encodeHeader(this.body != null ? this.body.length : 0);
     }
-
+    
+    /**
+     * 只打包Header，body部分独立传输
+     */
     public ByteBuffer encodeHeader(final int bodyLength) {
         // 1> header length size
         int length = 4;
