@@ -47,7 +47,9 @@ import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 import org.apache.rocketmq.remoting.protocol.RemotingSysResponseCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/**
+ * Server与Client公用抽象类
+ */
 public abstract class NettyRemotingAbstract {
 
     /**
@@ -58,16 +60,19 @@ public abstract class NettyRemotingAbstract {
     /**
      * Semaphore to limit maximum number of on-going one-way requests, which protects system memory footprint.
      */
+    // 信号量，Oneway情况会使用，防止本地Netty缓存请求过多
     protected final Semaphore semaphoreOneway;
 
     /**
      * Semaphore to limit maximum number of on-going asynchronous requests, which protects system memory footprint.
      */
+    // 信号量，异步调用情况会使用，防止本地Netty缓存请求过多
     protected final Semaphore semaphoreAsync;
 
     /**
      * This map caches all on-going requests.
      */
+    // 缓存所有对外请求
     protected final ConcurrentMap<Integer /* opaque */, ResponseFuture> responseTable =
         new ConcurrentHashMap<Integer, ResponseFuture>(256);
 
@@ -75,6 +80,7 @@ public abstract class NettyRemotingAbstract {
      * This container holds all processors per request code, aka, for each incoming request, we may look up the
      * responding processor in this map to handle the request.
      */
+    // 注册的各个RPC处理器
     protected final HashMap<Integer/* request code */, Pair<NettyRequestProcessor, ExecutorService>> processorTable =
         new HashMap<Integer, Pair<NettyRequestProcessor, ExecutorService>>(64);
 
@@ -86,6 +92,7 @@ public abstract class NettyRemotingAbstract {
     /**
      * The default request processor to use in case there is no exact match in {@link #processorTable} per request code.
      */
+    // 默认请求代码处理器
     protected Pair<NettyRequestProcessor, ExecutorService> defaultRequestProcessor;
 
     /**
@@ -180,7 +187,7 @@ public abstract class NettyRemotingAbstract {
                                     PLOG.error(response.toString());
                                 }
                             } else {
-
+                            	// 收到请求，但是没有返回应答，可能是processRequest中进行了应答，忽略这种情况
                             }
                         }
                     } catch (Throwable e) {
@@ -207,8 +214,10 @@ public abstract class NettyRemotingAbstract {
 
             try {
                 final RequestTask requestTask = new RequestTask(run, ctx.channel(), cmd);
+              // 这里需要做流控，要求线程池对应的队列必须是有大小限制的
                 pair.getObject2().submit(requestTask);
             } catch (RejectedExecutionException e) {
+            	// 每个线程10s打印一次
                 if ((System.currentTimeMillis() % 10000) == 0) {
                     PLOG.warn(RemotingHelper.parseChannelRemoteAddr(ctx.channel()) //
                         + ", too many requests and system thread pool busy, RejectedExecutionException " //
@@ -471,14 +480,17 @@ public abstract class NettyRemotingAbstract {
     }
 
     class NettyEventExecutor extends ServiceThread {
+    	// //使用LinkedBlockingQueue存NettyEvent
         private final LinkedBlockingQueue<NettyEvent> eventQueue = new LinkedBlockingQueue<NettyEvent>();
         private final int maxSize = 10000;
 
         public void putNettyEvent(final NettyEvent event) {
-            if (this.eventQueue.size() <= maxSize) {
+        	//这里的size没有坑 有些size并不是常量时间内返回的，主要是分桶策略减少集合的线程竞争才有这里问题。
+            if (this.eventQueue.size() <= maxSize) { 
                 this.eventQueue.add(event);
             } else {
                 PLOG.warn("event queue size[{}] enough, so drop this event {}", this.eventQueue.size(), event.toString());
+                //反正源码在此，可以自己考虑一些处理
             }
         }
 
