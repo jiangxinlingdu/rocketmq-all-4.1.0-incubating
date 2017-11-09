@@ -155,6 +155,7 @@ public class RemotingCommand {
         return decode(byteBuffer);
     }
 
+    //解码（Decode）、反序列化（deserialization）把从网络、磁盘等读取的字节数组还原成原始对象（通常是原始对象的拷贝），以方便后续的业务逻辑操作。
     public static RemotingCommand decode(final ByteBuffer byteBuffer) {
         int length = byteBuffer.limit();
         int oriHeaderLen = byteBuffer.getInt();
@@ -347,6 +348,7 @@ public class RemotingCommand {
         return name;
     }
 
+    //编码（Encode）、序列化（serialization）它将对象序列化为字节数组，用于网络传输、数据持久化或者其它用途。
     public ByteBuffer encode() {
         // 1> header length size
         int length = 4;
