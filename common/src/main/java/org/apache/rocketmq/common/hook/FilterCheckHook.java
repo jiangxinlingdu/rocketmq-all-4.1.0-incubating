@@ -19,6 +19,9 @@ package org.apache.rocketmq.common.hook;
 
 import java.nio.ByteBuffer;
 
+/**
+ * 确认消息是否需要过滤 Hook
+ */
 public interface FilterCheckHook {
     public String hookName();
 

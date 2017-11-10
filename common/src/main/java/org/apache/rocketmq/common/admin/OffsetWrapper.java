@@ -16,10 +16,13 @@
  */
 package org.apache.rocketmq.common.admin;
 
+/**
+ * Offset包装类，含Broker、Consumer
+ */
 public class OffsetWrapper {
     private long brokerOffset;
     private long consumerOffset;
-
+    // 消费的最后一条消息对应的时间戳
     private long lastTimestamp;
 
     public long getBrokerOffset() {

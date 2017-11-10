@@ -25,11 +25,17 @@ import org.apache.rocketmq.common.message.MessageExtBatch;
 /**
  * This class defines contracting interfaces to implement, allowing third-party vendor to use customized message store.
  */
+/**
+ * 存储层对外提供的接口
+ */
 public interface MessageStore {
 
     /**
      * Load previously stored messages.
      * @return true if success; false otherwise.
+     */
+	  /**
+     * 重启时，加载数据
      */
     boolean load();
 
@@ -37,15 +43,24 @@ public interface MessageStore {
      * Launch this message store.
      * @throws Exception if there is any error.
      */
+    /**
+     * 启动服务
+     */
     void start() throws Exception;
 
     /**
      * Shutdown this message store.
      */
+    /**
+     * 关闭服务
+     */
     void shutdown();
 
     /**
      * Destroy this message store. Generally, all persistent files should be removed after invocation.
+     */
+    /**
+     * 删除所有文件，单元测试会使用
      */
     void destroy();
 
@@ -53,6 +68,9 @@ public interface MessageStore {
      * Store a message into store.
      * @param msg Message instance to store
      * @return result of store operation.
+     */
+    /**
+     * 存储消息
      */
     PutMessageResult putMessage(final MessageExtBrokerInner msg);
 
@@ -75,6 +93,9 @@ public interface MessageStore {
      * @param messageFilter Message filter used to screen desired messages.
      * @return Matched messages.
      */
+    /**
+     * 读取消息，如果types为null，则不做过滤
+     */
     GetMessageResult getMessage(final String group, final String topic, final int queueId,
         final long offset, final int maxMsgNums, final MessageFilter messageFilter);
 
@@ -84,6 +105,9 @@ public interface MessageStore {
      * @param queueId Queue ID.
      * @return Maximum offset at present.
      */
+    /**
+     * 获取指定队列最大Offset 如果队列不存在，返回-1
+     */
     long getMaxOffsetInQueue(final String topic, final int queueId);
 
     /**
@@ -91,6 +115,9 @@ public interface MessageStore {
      * @param topic Topic name.
      * @param queueId Queue ID.
      * @return Minimum offset at present.
+     */
+    /**
+     * 获取指定队列最小Offset 如果队列不存在，返回-1
      */
     long getMinOffsetInQueue(final String topic, final int queueId);
 
@@ -101,6 +128,9 @@ public interface MessageStore {
      * @param consumeQueueOffset offset of consume queue.
      * @return physical offset.
      */
+    /**
+     * 获取消费队列记录的CommitLog Offset
+     */
     long getCommitLogOffsetInQueue(final String topic, final int queueId, final long consumeQueueOffset);
 
     /**
@@ -110,6 +140,10 @@ public interface MessageStore {
      * @param timestamp Timestamp to look up.
      * @return physical offset which matches.
      */
+    /**
+     * 根据消息时间获取某个队列中对应的offset 1、如果指定时间（包含之前之后）有对应的消息，则获取距离此时间最近的offset（优先选择之前）
+     * 2、如果指定时间无对应消息，则返回0
+     */
     long getOffsetInQueueByTime(final String topic, final int queueId, final long timestamp);
 
     /**
@@ -117,12 +151,18 @@ public interface MessageStore {
      * @param commitLogOffset physical offset.
      * @return Message whose physical offset is as specified.
      */
+    /**
+     * 通过物理队列Offset，查询消息。 如果发生错误，则返回null
+     */
     MessageExt lookMessageByOffset(final long commitLogOffset);
 
     /**
      * Get one message from the specified commit log offset.
      * @param commitLogOffset commit log offset.
      * @return wrapped result of the message.
+     */
+    /**
+     * 通过物理队列Offset，查询消息。 如果发生错误，则返回null
      */
     SelectMappedBufferResult selectOneMessageByOffset(final long commitLogOffset);
 
@@ -138,17 +178,26 @@ public interface MessageStore {
      * Get the running information of this store.
      * @return message store running info.
      */
+    /**
+     * 获取运行时统计数据
+     */
     String getRunningDataInfo();
 
     /**
      * Message store runtime information, which should generally contains various statistical information.
      * @return runtime information of the message store in format of key-value pairs.
      */
+    /**
+     * 获取运行时统计数据
+     */
     HashMap<String, String> getRuntimeInfo();
 
     /**
      * Get the maximum commit log offset.
      * @return maximum commit log offset.
+     */
+    /**
+     * 获取物理队列最大offset
      */
     long getMaxPhyOffset();
 
@@ -163,6 +212,9 @@ public interface MessageStore {
      * @param topic Topic of the messages to query.
      * @param queueId Queue ID to find.
      * @return store time of the earliest message.
+     */
+    /**
+     * 获取队列中最早的消息时间
      */
     long getEarliestMessageTime(final String topic, final int queueId);
 
@@ -187,12 +239,18 @@ public interface MessageStore {
      * @param queueId Queue ID.
      * @return total number.
      */
+    /**
+     * 获取队列中的消息总数
+     */
     long getMessageTotalInQueue(final String topic, final int queueId);
 
     /**
      * Get the raw commit log data starting from the given offset, which should used for replication purpose.
      * @param offset starting offset.
      * @return commit log data.
+     */
+    /**
+     * 数据复制使用：获取CommitLog数据
      */
     SelectMappedBufferResult getCommitLogData(final long offset);
 
@@ -202,10 +260,16 @@ public interface MessageStore {
      * @param data data to append.
      * @return true if success; false otherwise.
      */
+    /**
+     * 数据复制使用：向CommitLog追加数据，并分发至各个Consume Queue
+     */
     boolean appendToCommitLog(final long startOffset, final byte[] data);
 
     /**
      * Execute file deletion manually.
+     */
+    /**
+     * 手动触发删除文件
      */
     void executeDeleteFilesManually();
 
@@ -217,6 +281,9 @@ public interface MessageStore {
      * @param begin begin timestamp.
      * @param end end timestamp.
      * @return
+     */
+    /**
+     * 根据消息Key查询消息
      */
     QueryMessageResult queryMessage(final String topic, final String key, final int maxNum, final long begin,
         final long end);
@@ -230,6 +297,9 @@ public interface MessageStore {
     /**
      * Return how much the slave falls behind.
      * @return number of bytes that slave falls behind.
+     */
+    /**
+     * Slave落后Master多少，单位字节
      */
     long slaveFallBehindMuch();
 
@@ -249,6 +319,9 @@ public interface MessageStore {
     /**
      * Clean expired consume queues.
      */
+    /**
+     * 清除失效的消费队列
+     */
     void cleanExpiredConsumerQueue();
 
     /**
@@ -257,6 +330,9 @@ public interface MessageStore {
      * @param queueId queue ID.
      * @param consumeOffset consume queue offset.
      * @return true if the message is no longer in memory; false otherwise.
+     */
+    /**
+     * 判断消息是否在磁盘
      */
     boolean checkInDiskByConsumeOffset(final String topic, final int queueId, long consumeOffset);
 

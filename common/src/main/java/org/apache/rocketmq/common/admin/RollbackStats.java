@@ -17,6 +17,9 @@
 
 package org.apache.rocketmq.common.admin;
 
+/**
+ * 按时间回溯消费进度
+ */
 public class RollbackStats {
     private String brokerName;
     private long queueId;

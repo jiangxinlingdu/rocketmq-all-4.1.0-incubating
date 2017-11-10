@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.common.admin;
 
+/**
+ * Topic 统计信息信息
+ */
 public class TopicOffset {
     private long minOffset;
     private long maxOffset;

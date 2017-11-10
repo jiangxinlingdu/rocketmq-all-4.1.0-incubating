@@ -29,11 +29,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * 消息解码
+ */
 public class MessageDecoder {
+	  /**
+     * 消息ID定长
+     */
     public final static int MSG_ID_LENGTH = 8 + 8;
 
     public final static Charset CHARSET_UTF8 = Charset.forName("UTF-8");
+    /**
+     * 存储记录各个字段位置
+     */
     public final static int MESSAGE_MAGIC_CODE_POSTION = 4;
     public final static int MESSAGE_FLAG_POSTION = 16;
     public final static int MESSAGE_PHYSIC_OFFSET_POSTION = 28;
@@ -41,26 +49,28 @@ public class MessageDecoder {
     public final static int MESSAGE_MAGIC_CODE = 0xAABBCCDD ^ 1880681586 + 8;
     public static final char NAME_VALUE_SEPARATOR = 1;
     public static final char PROPERTY_SEPARATOR = 2;
-    public static final int BODY_SIZE_POSITION = 4 // 1 TOTALSIZE
-        + 4 // 2 MAGICCODE
-        + 4 // 3 BODYCRC
-        + 4 // 4 QUEUEID
-        + 4 // 5 FLAG
-        + 8 // 6 QUEUEOFFSET
-        + 8 // 7 PHYSICALOFFSET
-        + 4 // 8 SYSFLAG
-        + 8 // 9 BORNTIMESTAMP
-        + 8 // 10 BORNHOST
-        + 8 // 11 STORETIMESTAMP
-        + 8 // 12 STOREHOSTADDRESS
-        + 4 // 13 RECONSUMETIMES
-        + 8; // 14 Prepared Transaction Offset
+    public static final int BODY_SIZE_POSITION = 4 // 1 TOTALSIZE  //4个字节代表这个消息的大小
+        + 4 // 2 MAGICCODE //四个字节的MAGICCODE = daa320a7
+        + 4 // 3 BODYCRC //消息体BODY CRC  当broker重启recover时会校验
+        + 4 // 4 QUEUEID 
+        + 4 // 5 FLAG //flag  这个标志值rocketmq不做处理，只存储后透传
+        + 8 // 6 QUEUEOFFSET //QUEUEOFFSET这个值是个自增值不是真正的consume queue的偏移量，可以代表这个队列中消息的个数，要通过这个值查找到consume queue中数据，QUEUEOFFSET * 20才是偏移地址
+        + 8 // 7 PHYSICALOFFSET //PHYSICALOFFSET 代表消息在commitLog中的物理起始地址偏移量
+        + 4 // 8 SYSFLAG //SYSFLAG消息标志，指明消息是事物事物状态等等消息特征
+        + 8 // 9 BORNTIMESTAMP  //BORNTIMESTAMP 消息产生端(producer)的时间戳
+        + 8 // 10 BORNHOST  消息产生端(producer)地址(address:port)
+        + 8 // 11 STORETIMESTAMP 消息在broker存储时间
+        + 8 // 12 STOREHOSTADDRESS 消息存储到broker的地址(address:port)
+        + 4 // 13 RECONSUMETIMES 消息被某个订阅组重新消费了几次（订阅组之间独立计数）,因为重试消息发送到了topic名字为%retry%groupName的队列queueId=0的队列中去了
+        + 8; // 14 Prepared Transaction Offset 表示是prepared状态的事物消息
+
 
     public static String createMessageId(final ByteBuffer input, final ByteBuffer addr, final long offset) {
         input.flip();
         input.limit(MessageDecoder.MSG_ID_LENGTH);
-
+        // 消息存储主机地址 IP PORT 8
         input.put(addr);
+        // 消息对应的物理分区 OFFSET 8
         input.putLong(offset);
 
         return UtilAll.bytes2string(input.array());
@@ -163,9 +173,9 @@ public class MessageDecoder {
                 + 8 // 12 STOREHOSTADDRESS
                 + 4 // 13 RECONSUMETIMES
                 + 8 // 14 Prepared Transaction Offset
-                + 4 + bodyLength // 14 BODY
+                + 4 + bodyLength // 14 BODY  前4个字节存放消息体大小值，  后bodylength大小空间存储了消息体内容
                 + 1 + topicLen // 15 TOPIC
-                + 2 + propertiesLength // 16 propertiesLength
+                + 2 + propertiesLength // 16 propertiesLength  2个字节（short）存放属性值大小， 后存放propertiesLength大小的属性数据
                 + 0;
             byteBuffer = ByteBuffer.allocate(storeSize);
         }

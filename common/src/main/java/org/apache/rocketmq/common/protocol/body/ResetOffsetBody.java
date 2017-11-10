@@ -21,6 +21,9 @@ import java.util.Map;
 import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.remoting.protocol.RemotingSerializable;
 
+/**
+ * 重置 offset 处理结果。
+ */
 public class ResetOffsetBody extends RemotingSerializable {
     private Map<MessageQueue, Long> offsetTable;
 

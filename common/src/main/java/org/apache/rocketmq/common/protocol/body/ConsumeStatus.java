@@ -17,13 +17,16 @@
 
 package org.apache.rocketmq.common.protocol.body;
 
+/**
+ * 消费过程的统计数据
+ */
 public class ConsumeStatus {
     private double pullRT;
     private double pullTPS;
     private double consumeRT;
     private double consumeOKTPS;
     private double consumeFailedTPS;
-
+    // 最近一小时内消费失败的消息数
     private long consumeFailedMsgs;
 
     public double getPullRT() {
