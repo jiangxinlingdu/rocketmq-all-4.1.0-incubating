@@ -16,7 +16,6 @@
  */
 package org.apache.rocketmq.remoting.protocol;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -24,12 +23,15 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.rocketmq.remoting.CommandCustomHeader;
 import org.apache.rocketmq.remoting.annotation.CFNotNull;
 import org.apache.rocketmq.remoting.common.RemotingHelper;
 import org.apache.rocketmq.remoting.exception.RemotingCommandException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.alibaba.fastjson.annotation.JSONField;
 
 /**
  * Remoting模块中，服务器与客户端通过传递RemotingCommand来交互
@@ -156,13 +158,14 @@ public class RemotingCommand {
     }
 
     //解码（Decode）、反序列化（deserialization）把从网络、磁盘等读取的字节数组还原成原始对象（通常是原始对象的拷贝），以方便后续的业务逻辑操作。
+  //在调用decode()方法解码之前，会调用NettyDecoder 类的decode()方法，在上述构造方法中，会先去掉报文的前4个字节，这4个字节是存储的后面报文的长度.
     public static RemotingCommand decode(final ByteBuffer byteBuffer) {
-        int length = byteBuffer.limit();
-        int oriHeaderLen = byteBuffer.getInt();
+        int length = byteBuffer.limit();  //获取字节缓冲区的整个长度，这个长度等于通信协议格式的2、3、4段的总长度
+        int oriHeaderLen = byteBuffer.getInt(); //从缓冲区中读取4个字节的int类型的数据值 ，这个值就是报文头部的长度
         int headerLength = getHeaderLength(oriHeaderLen);
 
         byte[] headerData = new byte[headerLength];
-        byteBuffer.get(headerData);
+        byteBuffer.get(headerData); //接下来从缓冲区中读取headerLength个字节的数据，这个数据就是报文头部的数据
 
         RemotingCommand cmd = headerDecode(headerData, getProtocolType(oriHeaderLen));
 
@@ -170,7 +173,7 @@ public class RemotingCommand {
         byte[] bodyData = null;
         if (bodyLength > 0) {
             bodyData = new byte[bodyLength];
-            byteBuffer.get(bodyData);
+            byteBuffer.get(bodyData);//接下来读取length-4-headerLength  个字节的数据，这个数据就是报文体的数据
         }
         cmd.body = bodyData;
 
@@ -184,6 +187,7 @@ public class RemotingCommand {
     private static RemotingCommand headerDecode(byte[] headerData, SerializeType type) {
         switch (type) {
             case JSON:
+            	//数据转换成RemotingCommand 对象
                 RemotingCommand resultJson = RemotingSerializable.decode(headerData, RemotingCommand.class);
                 resultJson.setSerializeTypeCurrentRPC(type);
                 return resultJson;
@@ -351,34 +355,34 @@ public class RemotingCommand {
     //编码（Encode）、序列化（serialization）它将对象序列化为字节数组，用于网络传输、数据持久化或者其它用途。
     public ByteBuffer encode() {
         // 1> header length size
-        int length = 4;
+        int length = 4; //表示用4个字节来存储头部长度
 
         // 2> header data length
-        byte[] headerData = this.headerEncode();
-        length += headerData.length;
+        byte[] headerData = this.headerEncode(); //报文头部的数据
+        length += headerData.length;   //加上头部报文的字节长度
 
         // 3> body data length
         if (this.body != null) {
-            length += body.length;
+            length += body.length;  //如果报文体body有数据则加上报文体的字节长度
         }
 
-        ByteBuffer result = ByteBuffer.allocate(4 + length);
+        ByteBuffer result = ByteBuffer.allocate(4 + length); //分配一个  (4+length)这么大的字节缓冲区，这个缓冲区就用来存储上述协议格式的整个报文的数据
 
         // length
-        result.putInt(length);
+        result.putInt(length); //缓冲区的最开始的4个字节用来存储总的长度length
 
         // header length
-        result.put(markProtocolType(headerData.length, serializeTypeCurrentRPC));
+        result.put(markProtocolType(headerData.length, serializeTypeCurrentRPC));  //缓冲区接下来4个字节用来存储报文头部的长度
 
         // header data
-        result.put(headerData);
+        result.put(headerData);   //缓冲区接下来存储报文头部数据
 
         // body data;
         if (this.body != null) {
-            result.put(this.body);
+            result.put(this.body);  //缓冲区最后用来存储报文体的数据
         }
 
-        result.flip();
+        result.flip();  //将缓冲区翻转，用于将ByteBuffer放到网络通道中进行传输
 
         return result;
     }

@@ -32,7 +32,7 @@ public class NettyDecoder extends LengthFieldBasedFrameDecoder {
         Integer.parseInt(System.getProperty("com.rocketmq.remoting.frameMaxLength", "16777216"));
 
     public NettyDecoder() {
-        super(FRAME_MAX_LENGTH, 0, 4, 0, 4);
+        super(FRAME_MAX_LENGTH, 0, 4, 0, 4); //0,4,0,4   每一个0,4,这个是表示存放长度的变量的字节所占的长度，为4个，第二个4表示就是解码之后的数据包跳过的字节数为4,表示就将数据包的头部给去掉了。
     }
 
     @Override
