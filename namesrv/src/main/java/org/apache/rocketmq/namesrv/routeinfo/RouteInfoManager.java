@@ -104,6 +104,9 @@ public class RouteInfoManager {
         return topicList.encode();
     }
 
+    /**
+     * @return 如果是slave，则返回master的ha地址
+     */
     public RegisterBrokerResult registerBroker(
         final String clusterName,
         final String brokerAddr,
@@ -117,7 +120,7 @@ public class RouteInfoManager {
         try {
             try {
                 this.lock.writeLock().lockInterruptibly();
-
+                // 更新集群信息
                 Set<String> brokerNames = this.clusterAddrTable.get(clusterName);
                 if (null == brokerNames) {
                     brokerNames = new HashSet<String>();
@@ -126,7 +129,7 @@ public class RouteInfoManager {
                 brokerNames.add(brokerName);
 
                 boolean registerFirst = false;
-
+                // 更新主备信息
                 BrokerData brokerData = this.brokerAddrTable.get(brokerName);
                 if (null == brokerData) {
                     registerFirst = true;
@@ -135,10 +138,10 @@ public class RouteInfoManager {
                 }
                 String oldAddr = brokerData.getBrokerAddrs().put(brokerId, brokerAddr);
                 registerFirst = registerFirst || (null == oldAddr);
-
+                // 更新Topic信息
                 if (null != topicConfigWrapper //
                     && MixAll.MASTER_ID == brokerId) {
-                    if (this.isBrokerTopicConfigChanged(brokerAddr, topicConfigWrapper.getDataVersion())//
+                    if (this.isBrokerTopicConfigChanged(brokerAddr, topicConfigWrapper.getDataVersion())//判断Topic配置信息是否发生变更
                         || registerFirst) {
                         ConcurrentMap<String, TopicConfig> tcTable =
                             topicConfigWrapper.getTopicConfigTable();
@@ -149,7 +152,7 @@ public class RouteInfoManager {
                         }
                     }
                 }
-
+                // 更新最后变更时间
                 BrokerLiveInfo prevBrokerLiveInfo = this.brokerLiveTable.put(brokerAddr,
                     new BrokerLiveInfo(
                         System.currentTimeMillis(),
@@ -159,7 +162,7 @@ public class RouteInfoManager {
                 if (null == prevBrokerLiveInfo) {
                     log.info("new broker registerd, {} HAServer: {}", brokerAddr, haServerAddr);
                 }
-
+                // 更新Filter Server列表
                 if (filterServerList != null) {
                     if (filterServerList.isEmpty()) {
                         this.filterServerTable.remove(brokerAddr);
@@ -167,7 +170,7 @@ public class RouteInfoManager {
                         this.filterServerTable.put(brokerAddr, filterServerList);
                     }
                 }
-
+                // 返回值
                 if (MixAll.MASTER_ID != brokerId) {
                     String masterAddr = brokerData.getBrokerAddrs().get(MixAll.MASTER_ID);
                     if (masterAddr != null) {
@@ -187,7 +190,9 @@ public class RouteInfoManager {
 
         return result;
     }
-
+    /**
+     * 判断Topic配置信息是否发生变更
+     */
     private boolean isBrokerTopicConfigChanged(final String brokerAddr, final DataVersion dataVersion) {
         BrokerLiveInfo prev = this.brokerLiveTable.get(brokerAddr);
         if (null == prev || !prev.getDataVersion().equals(dataVersion)) {

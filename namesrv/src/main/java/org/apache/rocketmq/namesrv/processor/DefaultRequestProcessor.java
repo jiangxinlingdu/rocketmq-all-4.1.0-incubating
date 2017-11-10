@@ -185,6 +185,7 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
         return response;
     }
 
+    //注册Broker
     public RemotingCommand registerBrokerWithFilterServer(ChannelHandlerContext ctx, RemotingCommand request)
         throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(RegisterBrokerResponseHeader.class);

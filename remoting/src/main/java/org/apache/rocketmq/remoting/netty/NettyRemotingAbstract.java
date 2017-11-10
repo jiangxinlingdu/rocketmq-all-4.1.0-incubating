@@ -167,6 +167,7 @@ public abstract class NettyRemotingAbstract {
                     try {
                         RPCHook rpcHook = NettyRemotingAbstract.this.getRPCHook();
                         if (rpcHook != null) {
+                        	//处理前
                             rpcHook.doBeforeRequest(RemotingHelper.parseChannelRemoteAddr(ctx.channel()), cmd);
                         }
 

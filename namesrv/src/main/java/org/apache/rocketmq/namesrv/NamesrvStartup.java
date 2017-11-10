@@ -164,7 +164,7 @@ public class NamesrvStartup {
             log.info(tip);
             System.out.printf(tip + "%n");
 
-            return controller;  //不return又咋滴？
+            return controller;  //不return又咋滴？ 调用处main0(args);是这样的，没有拿返回值做事情
         } catch (Throwable e) {
             e.printStackTrace();
             System.exit(-1);
