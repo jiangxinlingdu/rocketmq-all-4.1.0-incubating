@@ -53,6 +53,9 @@ import org.apache.rocketmq.store.SelectMappedBufferResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Broker主动调用客户端接口
+ */
 public class Broker2Client {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
     private final BrokerController brokerController;
@@ -60,7 +63,9 @@ public class Broker2Client {
     public Broker2Client(BrokerController brokerController) {
         this.brokerController = brokerController;
     }
-
+    /**
+     * Broker主动回查Producer事务状态，Oneway
+     */
     public void checkProducerTransactionState(
         final Channel channel,
         final CheckTransactionStateRequestHeader requestHeader,
@@ -94,6 +99,9 @@ public class Broker2Client {
         return this.brokerController.getRemotingServer().invokeSync(channel, request, 10000);
     }
 
+    /**
+     * Broker主动通知Consumer，Id列表发生变化，Oneway
+     */
     public void notifyConsumerIdsChanged(
         final Channel channel,
         final String consumerGroup) {
@@ -114,6 +122,9 @@ public class Broker2Client {
         }
     }
 
+    /**
+     * Broker 主动通知 Consumer，offset 需要进行重置列表发生变化
+     */
     public RemotingCommand resetOffset(String topic, String group, long timeStamp, boolean isForce) {
         return resetOffset(topic, group, timeStamp, isForce, false);
     }
@@ -188,6 +199,7 @@ public class Broker2Client {
         ConsumerGroupInfo consumerGroupInfo =
             this.brokerController.getConsumerManager().getConsumerGroupInfo(group);
 
+     // Consumer在线
         if (consumerGroupInfo != null && !consumerGroupInfo.getAllChannel().isEmpty()) {
             ConcurrentMap<Channel, ClientChannelInfo> channelInfoTable =
                 consumerGroupInfo.getChannelInfoTable();
