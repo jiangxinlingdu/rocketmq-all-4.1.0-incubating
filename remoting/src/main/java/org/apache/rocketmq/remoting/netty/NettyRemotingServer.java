@@ -219,6 +219,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
                 this.timer.cancel();
             }
 
+            //优雅的退出是否nio线程组
             this.eventLoopGroupBoss.shutdownGracefully();
 
             this.eventLoopGroupSelector.shutdownGracefully();
