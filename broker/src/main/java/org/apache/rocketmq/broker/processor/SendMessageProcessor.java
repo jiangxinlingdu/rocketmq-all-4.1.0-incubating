@@ -319,6 +319,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
         final RemotingCommand response = RemotingCommand.createResponseCommand(SendMessageResponseHeader.class);
         final SendMessageResponseHeader responseHeader = (SendMessageResponseHeader) response.readCustomHeader();
 
+        // 由于有直接返回的逻辑，所以必须要设置
         response.setOpaque(request.getOpaque());
 
         response.addExtField(MessageConst.PROPERTY_MSG_REGION, this.brokerController.getBrokerConfig().getRegionId());

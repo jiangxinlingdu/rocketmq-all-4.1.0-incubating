@@ -394,7 +394,8 @@ public class BrokerController {
         /**
          * SendMessageProcessor
          */
-        SendMessageProcessor sendProcessor = new SendMessageProcessor(this);
+    	//处理客户端发送消息的请求
+        SendMessageProcessor sendProcessor = new SendMessageProcessor(this); 
         sendProcessor.registerSendMessageHook(sendMessageHookList);
         sendProcessor.registerConsumeMessageHook(consumeMessageHookList);
 

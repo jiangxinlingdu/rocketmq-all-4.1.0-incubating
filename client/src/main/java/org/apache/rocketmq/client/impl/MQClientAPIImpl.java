@@ -1184,7 +1184,7 @@ public class MQClientAPIImpl {
 
         RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.GET_ROUTEINTO_BY_TOPIC, requestHeader);
 
-        RemotingCommand response = this.remotingClient.invokeSync(null, request, timeoutMillis);
+        RemotingCommand response = this.remotingClient.invokeSync(null, request, timeoutMillis); //同步调用namesrv获取topic route info
         assert response != null;
         switch (response.getCode()) {
             case ResponseCode.TOPIC_NOT_EXIST: {

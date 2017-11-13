@@ -428,6 +428,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
         this.mqFaultStrategy.updateFaultItem(brokerName, currentLatency, isolation);
     }
 
+    //发送消息核心
     private SendResult sendDefaultImpl(//
         Message msg, //
         final CommunicationMode communicationMode, //
@@ -459,6 +460,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                     brokersSent[times] = mq.getBrokerName();
                     try {
                         beginTimestampPrev = System.currentTimeMillis();
+                        //调用sendKernelImpl发送消息 
                         sendResult = this.sendKernelImpl(msg, mq, communicationMode, sendCallback, topicPublishInfo, timeout);
                         endTimestamp = System.currentTimeMillis();
                         this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, false);
@@ -568,7 +570,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
         TopicPublishInfo topicPublishInfo = this.topicPublishInfoTable.get(topic);
         if (null == topicPublishInfo || !topicPublishInfo.ok()) {
             this.topicPublishInfoTable.putIfAbsent(topic, new TopicPublishInfo());//如果key存在的情况下，在putIfAbsent下不会修改
-            this.mQClientFactory.updateTopicRouteInfoFromNameServer(topic);
+            this.mQClientFactory.updateTopicRouteInfoFromNameServer(topic); //进行调用获取规则存下来
             topicPublishInfo = this.topicPublishInfoTable.get(topic);
         }
 
@@ -676,7 +678,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                 SendResult sendResult = null;
                 switch (communicationMode) {
                     case ASYNC:
-                        sendResult = this.mQClientFactory.getMQClientAPIImpl().sendMessage(//
+                        sendResult = this.mQClientFactory.getMQClientAPIImpl().sendMessage(//发送消息
                             brokerAddr, // 1
                             mq.getBrokerName(), // 2
                             msg, // 3
@@ -692,7 +694,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                         break;
                     case ONEWAY:
                     case SYNC:
-                        sendResult = this.mQClientFactory.getMQClientAPIImpl().sendMessage(
+                        sendResult = this.mQClientFactory.getMQClientAPIImpl().sendMessage(//发送消息
                             brokerAddr,
                             mq.getBrokerName(),
                             msg,
