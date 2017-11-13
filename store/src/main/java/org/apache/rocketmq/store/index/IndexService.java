@@ -33,15 +33,21 @@ import org.apache.rocketmq.store.config.StorePathConfigHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 消息索引服务
+ */
 public class IndexService {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
     /** Maximum times to attempt index file creation. */
     private static final int MAX_TRY_IDX_CREATE = 3;
     private final DefaultMessageStore defaultMessageStore;
+ // 索引配置
     private final int hashSlotNum;
     private final int indexNum;
     private final String storePath;
+ // 索引文件集合
     private final ArrayList<IndexFile> indexFileList = new ArrayList<IndexFile>();
+ // 读写锁（针对indexFileList）
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     public IndexService(final DefaultMessageStore store) {
@@ -85,6 +91,9 @@ public class IndexService {
         return true;
     }
 
+    /**
+     * 删除索引文件
+     */
     public void deleteExpiredFile(long offset) {
         Object[] files = null;
         try {
@@ -118,6 +127,9 @@ public class IndexService {
         }
     }
 
+    /**
+     * 删除文件只能从头开始删
+     */
     private void deleteExpiredFile(List<IndexFile> files) {
         if (!files.isEmpty()) {
             try {
@@ -170,10 +182,11 @@ public class IndexService {
                     }
 
                     if (f.isTimeMatched(begin, end)) {
-
+                    	// 最后一个文件需要加锁
                         f.selectPhyOffset(phyOffsets, buildKey(topic, key), maxNum, begin, end, lastFile);
                     }
 
+                 // 再往前遍历时间更不符合
                     if (f.getBeginTimestamp() < begin) {
                         break;
                     }
@@ -266,6 +279,7 @@ public class IndexService {
     public IndexFile retryGetAndCreateIndexFile() {
         IndexFile indexFile = null;
 
+     // 如果创建失败，尝试重建3次
         for (int times = 0; null == indexFile && times < MAX_TRY_IDX_CREATE; times++) {
             indexFile = this.getAndCreateLastIndexFile();
             if (null != indexFile)
@@ -279,6 +293,7 @@ public class IndexService {
             }
         }
 
+     // 重试多次，仍然无法创建索引文件
         if (null == indexFile) {
             this.defaultMessageStore.getAccessRights().makeIndexFileError();
             log.error("Mark index file cannot build flag");
@@ -287,12 +302,16 @@ public class IndexService {
         return indexFile;
     }
 
+    /**
+     * 获取最后一个索引文件，如果集合为空或者最后一个文件写满了，则新建一个文件<br>
+     * 只有一个线程调用，所以不存在写竟争问题
+     */
     public IndexFile getAndCreateLastIndexFile() {
         IndexFile indexFile = null;
         IndexFile prevIndexFile = null;
         long lastUpdateEndPhyOffset = 0;
         long lastUpdateIndexTimestamp = 0;
-
+       // 先尝试使用读锁
         {
             this.readWriteLock.readLock().lock();
             if (!this.indexFileList.isEmpty()) {
@@ -309,6 +328,7 @@ public class IndexService {
             this.readWriteLock.readLock().unlock();
         }
 
+     // 如果没找到，使用写锁创建文件
         if (indexFile == null) {
             try {
                 String fileName =
@@ -325,6 +345,7 @@ public class IndexService {
                 this.readWriteLock.writeLock().unlock();
             }
 
+            // 每创建一个新文件，之前文件要刷盘
             if (indexFile != null) {
                 final IndexFile flushThisFile = prevIndexFile;
                 Thread flushThread = new Thread(new Runnable() {

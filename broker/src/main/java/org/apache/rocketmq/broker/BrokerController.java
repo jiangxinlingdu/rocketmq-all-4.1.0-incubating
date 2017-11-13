@@ -192,6 +192,8 @@ public class BrokerController {
     }
 
     public boolean initialize() throws CloneNotSupportedException {
+    	//这几个load 加载 topics.json、 consumerOffset.json、 subscriptionGroup.json、 consumerFilter.json文件
+        //分别将各文件的数据存入 TopicConfigManager、 ConsumerOffsetManager、SubscriptionGroupManager  consumerFilterManager对象中
         boolean result = this.topicConfigManager.load();
 
         result = result && this.consumerOffsetManager.load();
@@ -200,6 +202,7 @@ public class BrokerController {
 
         if (result) {
             try {
+            	//初始化 DefaultMessageStore 对象，该对象是应用层访问存储层的访问类
                 this.messageStore =
                     new DefaultMessageStore(this.messageStoreConfig, this.brokerStatsManager, this.messageArrivingListener,
                         this.brokerConfig);
@@ -214,13 +217,16 @@ public class BrokerController {
             }
         }
 
+        //加载数据 
         result = result && this.messageStore.load();
 
         if (result) {
+        	//初始化 Netty 服务端 NettyRemotingServer 对象
             this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.clientHousekeepingService);
             NettyServerConfig fastConfig = (NettyServerConfig) this.nettyServerConfig.clone();
             fastConfig.setListenPort(nettyServerConfig.getListenPort() - 2);
-            this.fastRemotingServer = new NettyRemotingServer(fastConfig, this.clientHousekeepingService);
+            this.fastRemotingServer = new NettyRemotingServer(fastConfig, this.clientHousekeepingService); //定期检测客户端连接，清除不活动的连接
+           //初始化发送消息线程池
             this.sendMessageExecutor = new BrokerFixedThreadPoolExecutor(
                 this.brokerConfig.getSendMessageThreadPoolNums(),
                 this.brokerConfig.getSendMessageThreadPoolNums(),
@@ -229,6 +235,7 @@ public class BrokerController {
                 this.sendThreadPoolQueue,
                 new ThreadFactoryImpl("SendMessageThread_"));
 
+            //初始化拉取消息线程池
             this.pullMessageExecutor = new BrokerFixedThreadPoolExecutor(
                 this.brokerConfig.getPullMessageThreadPoolNums(),
                 this.brokerConfig.getPullMessageThreadPoolNums(),
@@ -237,10 +244,12 @@ public class BrokerController {
                 this.pullThreadPoolQueue,
                 new ThreadFactoryImpl("PullMessageThread_"));
 
+            //初始化管理 Broker 线程池
             this.adminBrokerExecutor =
                 Executors.newFixedThreadPool(this.brokerConfig.getAdminBrokerThreadPoolNums(), new ThreadFactoryImpl(
                     "AdminBrokerThread_"));
 
+            //初始化客户端管理线程池
             this.clientManageExecutor = new ThreadPoolExecutor(
                 this.brokerConfig.getClientManageThreadPoolNums(),
                 this.brokerConfig.getClientManageThreadPoolNums(),
@@ -249,10 +258,12 @@ public class BrokerController {
                 this.clientManagerThreadPoolQueue,
                 new ThreadFactoryImpl("ClientManageThread_"));
 
+            //初始化消费端管理线程池
             this.consumerManageExecutor =
                 Executors.newFixedThreadPool(this.brokerConfig.getConsumerManageThreadPoolNums(), new ThreadFactoryImpl(
                     "ConsumerManageThread_"));
 
+            //注册事件处理器 
             this.registerProcessor();
 
             // TODO remove in future
@@ -662,6 +673,7 @@ public class BrokerController {
 
         this.registerBrokerAll(true, false);
 
+        //每个Broker会每隔30s向NameSrv更新自身topic信息
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
@@ -683,7 +695,9 @@ public class BrokerController {
         }
     }
 
+    //向 NameServer注册 Broker
     public synchronized void registerBrokerAll(final boolean checkOrderConfig, boolean oneway) {
+    	//构建topicConfigSerializeWrapper
         TopicConfigSerializeWrapper topicConfigWrapper = this.getTopicConfigManager().buildTopicConfigSerializeWrapper();
 
         if (!PermName.isWriteable(this.getBrokerConfig().getBrokerPermission())
@@ -710,10 +724,12 @@ public class BrokerController {
             this.brokerConfig.getRegisterBrokerTimeoutMills());
 
         if (registerBrokerResult != null) {
+        	//根据 updateMasterHAServerAddrPeriodically 标注位判断是否需要更新主用Broker地址 
             if (this.updateMasterHAServerAddrPeriodically && registerBrokerResult.getHaServerAddr() != null) {
                 this.messageStore.updateHaMasterAddress(registerBrokerResult.getHaServerAddr());
             }
 
+            //用 NameServer 返回的 MasterAddr 值更新 SlaveSynchronize.setMasterAddr值，用于主备 Broker 同步 Config 文件使用
             this.slaveSynchronize.setMasterAddr(registerBrokerResult.getMasterAddr());
 
             if (checkOrderConfig) {

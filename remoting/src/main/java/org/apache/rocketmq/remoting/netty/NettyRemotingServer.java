@@ -174,7 +174,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
                             defaultEventExecutorGroup,
                             new NettyEncoder(),  //编码
                             new NettyDecoder(),  //解码
-                            new IdleStateHandler(0, 0, nettyServerConfig.getServerChannelMaxIdleTimeSeconds()),
+                            new IdleStateHandler(0, 0, nettyServerConfig.getServerChannelMaxIdleTimeSeconds()), //心跳检查
                             new NettyConnectManageHandler(),
                             new NettyServerHandler());
                     }

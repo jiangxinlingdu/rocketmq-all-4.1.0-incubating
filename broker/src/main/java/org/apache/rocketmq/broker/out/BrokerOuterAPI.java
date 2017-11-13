@@ -132,6 +132,7 @@ public class BrokerOuterAPI {
         return registerBrokerResult;
     }
 
+    //向 NameServer注册 Broker
     private RegisterBrokerResult registerBroker(
         final String namesrvAddr,
         final String clusterName,

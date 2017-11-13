@@ -67,7 +67,7 @@ public class NamesrvController {
         this.nettyServerConfig = nettyServerConfig;
         this.kvConfigManager = new KVConfigManager(this);
         this.routeInfoManager = new RouteInfoManager();
-        this.brokerHousekeepingService = new BrokerHousekeepingService(this);
+        this.brokerHousekeepingService = new BrokerHousekeepingService(this); //接收Broker连接事件
         this.configuration = new Configuration(
             log,
             this.namesrvConfig, this.nettyServerConfig

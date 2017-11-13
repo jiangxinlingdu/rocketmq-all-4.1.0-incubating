@@ -58,48 +58,53 @@ import org.slf4j.LoggerFactory;
 
 import static org.apache.rocketmq.store.config.BrokerRole.SLAVE;
 
+/**
+ * 存储层默认实现
+ */
 public class DefaultMessageStore implements MessageStore {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
 
+ // 存储配置
     private final MessageStoreConfig messageStoreConfig;
     // CommitLog
     private final CommitLog commitLog;
-
+ // ConsumeQueue集合
     private final ConcurrentMap<String/* topic */, ConcurrentMap<Integer/* queueId */, ConsumeQueue>> consumeQueueTable;
-
+ // 逻辑队列刷盘服务
     private final FlushConsumeQueueService flushConsumeQueueService;
-
+ // 清理物理文件服务
     private final CleanCommitLogService cleanCommitLogService;
-
+ // 清理逻辑文件服务
     private final CleanConsumeQueueService cleanConsumeQueueService;
-
+ // 消息索引服务
     private final IndexService indexService;
-
+    // 预分配MapedFile对象服务
     private final AllocateMappedFileService allocateMappedFileService;
-
+ // 从物理队列解析消息重新发送到逻辑队列
     private final ReputMessageService reputMessageService;
-
+ // HA服务
     private final HAService haService;
-
+    // 定时服务
     private final ScheduleMessageService scheduleMessageService;
-
+ // 运行时数据统计
     private final StoreStatsService storeStatsService;
 
     private final TransientStorePool transientStorePool;
-
+    // 运行过程标志位
     private final RunningFlags runningFlags = new RunningFlags();
+    // 优化获取时间性能，精度1ms
     private final SystemClock systemClock = new SystemClock();
-
+    // 存储层的定时线程
     private final ScheduledExecutorService scheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl("StoreScheduledThread"));
     private final BrokerStatsManager brokerStatsManager;
     private final MessageArrivingListener messageArrivingListener;
     private final BrokerConfig brokerConfig;
-
+    // 存储服务是否启动
     private volatile boolean shutdown = true;
-
+    // 存储检查点
     private StoreCheckpoint storeCheckpoint;
-
+    // 权限控制后，打印间隔次数
     private AtomicLong printTimes = new AtomicLong(0);
 
     private final LinkedList<CommitLogDispatcher> dispatcherList;
