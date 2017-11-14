@@ -661,7 +661,7 @@ public class CommitLog {
                 service.wakeup();
             }
         }
-        // Asynchronous flush  异步刷盘
+        // Asynchronous flush   异步刷盘
         else {
             if (!this.defaultMessageStore.getMessageStoreConfig().isTransientStorePoolEnable()) {
                 flushCommitLogService.wakeup();
