@@ -20,10 +20,19 @@
  */
 package org.apache.rocketmq.common.protocol.heartbeat;
 
+/**
+ * 消费类型
+ */
 public enum ConsumeType {
 
+	 /**
+     * 主动方式消费
+     */
     CONSUME_ACTIVELY("PULL"),
 
+    /**
+     * 被动方式消费
+     */
     CONSUME_PASSIVELY("PUSH");
 
     private String typeCN;

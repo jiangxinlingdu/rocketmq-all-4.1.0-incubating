@@ -17,6 +17,7 @@
 
 package org.apache.rocketmq.common.protocol;
 
+
 public class RequestCode {
     // Broker 发送消息
     public static final int SEND_MESSAGE = 10;

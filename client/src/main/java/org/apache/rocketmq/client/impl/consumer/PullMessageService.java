@@ -53,6 +53,7 @@ public class PullMessageService extends ServiceThread {
         }, timeDelay, TimeUnit.MILLISECONDS);
     }
 
+    //往pullRequestQueue里面put元素
     public void executePullRequestImmediately(final PullRequest pullRequest) {
         try {
             this.pullRequestQueue.put(pullRequest);

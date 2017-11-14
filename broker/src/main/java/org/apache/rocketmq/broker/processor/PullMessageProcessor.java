@@ -66,9 +66,15 @@ import org.apache.rocketmq.store.stats.BrokerStatsManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 拉消息请求处理
+ */
 public class PullMessageProcessor implements NettyRequestProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
     private final BrokerController brokerController;
+    /**
+     * 发送每条消息会回调
+     */
     private List<ConsumeMessageHook> consumeMessageHookList;
 
     public PullMessageProcessor(final BrokerController brokerController) {
@@ -92,18 +98,21 @@ public class PullMessageProcessor implements NettyRequestProcessor {
         final PullMessageRequestHeader requestHeader =
             (PullMessageRequestHeader) request.decodeCommandCustomHeader(PullMessageRequestHeader.class);
 
+        // 由于使用sendfile，所以必须要设置
         response.setOpaque(request.getOpaque());
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("receive PullMessage request command, {}", request);
         }
 
+         // 检查Broker权限
         if (!PermName.isReadable(this.brokerController.getBrokerConfig().getBrokerPermission())) {
             response.setCode(ResponseCode.NO_PERMISSION);
             response.setRemark(String.format("the broker[%s] pulling message is forbidden", this.brokerController.getBrokerConfig().getBrokerIP1()));
             return response;
         }
 
+        // 确保订阅组存在
         SubscriptionGroupConfig subscriptionGroupConfig =
             this.brokerController.getSubscriptionGroupManager().findSubscriptionGroupConfig(requestHeader.getConsumerGroup());
         if (null == subscriptionGroupConfig) {
@@ -112,6 +121,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
             return response;
         }
 
+        // 这个订阅组是否可以消费消息
         if (!subscriptionGroupConfig.isConsumeEnable()) {
             response.setCode(ResponseCode.NO_PERMISSION);
             response.setRemark("subscription group no permission, " + requestHeader.getConsumerGroup());
@@ -124,6 +134,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
 
         final long suspendTimeoutMillisLong = hasSuspendFlag ? requestHeader.getSuspendTimeoutMillis() : 0;
 
+        // 检查topic是否存在
         TopicConfig topicConfig = this.brokerController.getTopicConfigManager().selectTopicConfig(requestHeader.getTopic());
         if (null == topicConfig) {
             LOG.error("The topic {} not exist, consumer: {} ", requestHeader.getTopic(), RemotingHelper.parseChannelRemoteAddr(channel));
@@ -132,12 +143,14 @@ public class PullMessageProcessor implements NettyRequestProcessor {
             return response;
         }
 
+        // 检查topic权限
         if (!PermName.isReadable(topicConfig.getPerm())) {
             response.setCode(ResponseCode.NO_PERMISSION);
             response.setRemark("the topic[" + requestHeader.getTopic() + "] pulling message is forbidden");
             return response;
         }
 
+        // 检查队列有效性
         if (requestHeader.getQueueId() < 0 || requestHeader.getQueueId() >= topicConfig.getReadQueueNums()) {
             String errorInfo = String.format("queueId[%d] is illegal, topic:[%s] topicConfig.readQueueNums:[%d] consumer:[%s]",
                     requestHeader.getQueueId(), requestHeader.getTopic(), topicConfig.getReadQueueNums(), channel.remoteAddress());
@@ -147,6 +160,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
             return response;
         }
 
+        // 订阅关系处理
         SubscriptionData subscriptionData = null;
         ConsumerFilterData consumerFilterData = null;
         if (hasSubscriptionFlag) {
@@ -193,6 +207,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
                 return response;
             }
 
+            // 判断Broker的订阅关系版本是否最新
             if (subscriptionData.getSubVersion() < requestHeader.getSubVersion()) {
                 LOG.warn("The broker's subscription is not latest, group: {} {}", requestHeader.getConsumerGroup(),
                     subscriptionData.getSubString());
@@ -234,6 +249,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
                 this.brokerController.getConsumerFilterManager());
         }
 
+        //这个地方体现了零拷贝。消息落地磁盘的时候，是从file map出来的内存buffer，此时消费消息的时候无需再读取文件，而是直接读取map出来的buffer！
         final GetMessageResult getMessageResult =
             this.brokerController.getMessageStore().getMessage(requestHeader.getConsumerGroup(), requestHeader.getTopic(),
                 requestHeader.getQueueId(), requestHeader.getQueueOffset(), requestHeader.getMaxMsgNums(), messageFilter);
@@ -243,9 +259,12 @@ public class PullMessageProcessor implements NettyRequestProcessor {
             responseHeader.setMinOffset(getMessageResult.getMinOffset());
             responseHeader.setMaxOffset(getMessageResult.getMaxOffset());
 
+            // 消费较慢，重定向到另外一台机器
             if (getMessageResult.isSuggestPullingFromSlave()) {
                 responseHeader.setSuggestWhichBrokerId(subscriptionGroupConfig.getWhichBrokerWhenConsumeSlowly());
-            } else {
+            } 
+            // 消费正常，按照订阅组配置重定向
+            else {
                 responseHeader.setSuggestWhichBrokerId(MixAll.MASTER_ID);
             }
 
@@ -281,6 +300,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
                 case MESSAGE_WAS_REMOVING:
                     response.setCode(ResponseCode.PULL_RETRY_IMMEDIATELY);
                     break;
+                 // 这两个返回值都表示服务器暂时没有这个队列，应该立刻将客户端Offset重置为0
                 case NO_MATCHED_LOGIC_QUEUE:
                 case NO_MESSAGE_IN_QUEUE:
                     if (0 != requestHeader.getQueueOffset()) {
@@ -323,7 +343,9 @@ public class PullMessageProcessor implements NettyRequestProcessor {
                     break;
             }
 
+            // 消息轨迹：记录客户端拉取的消息记录（不表示消费成功）
             if (this.hasConsumeMessageHook()) {
+            	 // 执行hook
                 ConsumeMessageContext context = new ConsumeMessageContext();
                 context.setConsumerGroup(requestHeader.getConsumerGroup());
                 context.setTopic(requestHeader.getTopic());
@@ -367,7 +389,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
 
             switch (response.getCode()) {
                 case ResponseCode.SUCCESS:
-
+                	// 统计
                     this.brokerController.getBrokerStatsManager().incGroupGetNums(requestHeader.getConsumerGroup(), requestHeader.getTopic(),
                         getMessageResult.getMessageCount());
 
@@ -404,7 +426,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
                     }
                     break;
                 case ResponseCode.PULL_NOT_FOUND:
-
+                	// 长轮询
                     if (brokerAllowSuspend && hasSuspendFlag) {
                         long pollingTimeMills = suspendTimeoutMillisLong;
                         if (!this.brokerController.getBrokerConfig().isLongPollingEnable()) {
@@ -420,7 +442,7 @@ public class PullMessageProcessor implements NettyRequestProcessor {
                         response = null;
                         break;
                     }
-
+                 // 向Consumer返回应答
                 case ResponseCode.PULL_RETRY_IMMEDIATELY:
                     break;
                 case ResponseCode.PULL_OFFSET_MOVED:
@@ -457,10 +479,10 @@ public class PullMessageProcessor implements NettyRequestProcessor {
             response.setCode(ResponseCode.SYSTEM_ERROR);
             response.setRemark("store getMessage return null");
         }
-
-        boolean storeOffsetEnable = brokerAllowSuspend;
-        storeOffsetEnable = storeOffsetEnable && hasCommitOffsetFlag;
-        storeOffsetEnable = storeOffsetEnable
+     // 存储Consumer消费进度
+        boolean storeOffsetEnable = brokerAllowSuspend;// 说明是首次调用，相对于长轮询通知
+        storeOffsetEnable = storeOffsetEnable && hasCommitOffsetFlag;// 说明Consumer设置了标志位
+        storeOffsetEnable = storeOffsetEnable// 只有Master支持存储offset
             && this.brokerController.getMessageStoreConfig().getBrokerRole() != BrokerRole.SLAVE;
         if (storeOffsetEnable) {
             this.brokerController.getConsumerOffsetManager().commitOffset(RemotingHelper.parseChannelRemoteAddr(channel),

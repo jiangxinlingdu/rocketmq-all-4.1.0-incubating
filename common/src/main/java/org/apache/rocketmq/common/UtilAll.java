@@ -38,6 +38,9 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 import org.apache.rocketmq.remoting.common.RemotingHelper;
 
+/**
+ * 各种方法大杂烩
+ */
 public class UtilAll {
     public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
     public static final String YYYY_MM_DD_HH_MM_SS_SSS = "yyyy-MM-dd#HH:mm:ss:SSS";
@@ -65,6 +68,10 @@ public class UtilAll {
         return sb.toString();
     }
 
+    /**
+     * 将offset转化成字符串形式<br>
+     * 左补零对齐至20位
+     */
     public static String offset2FileName(final long offset) {
         final NumberFormat nf = NumberFormat.getInstance();
         nf.setMinimumIntegerDigits(20);
@@ -73,6 +80,9 @@ public class UtilAll {
         return nf.format(offset);
     }
 
+    /**
+     * 计算耗时操作，单位ms
+     */
     public static long computeEclipseTimeMilliseconds(final long beginTime) {
         return System.currentTimeMillis() - beginTime;
     }
@@ -165,6 +175,10 @@ public class UtilAll {
             cal.get(Calendar.MILLISECOND));
     }
 
+    /**
+     * 返回日期时间格式，精度到秒<br>
+     * 格式如下：2013122305190000
+     */
     public static String timeMillisToHumanString3(final long t) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(t);
@@ -177,6 +191,9 @@ public class UtilAll {
             cal.get(Calendar.SECOND));
     }
 
+    /**
+     * 获取磁盘分区空间使用率
+     */
     public static double getDiskPartitionSpaceUsedPercent(final String path) {
         if (null == path || path.isEmpty())
             return -1;
@@ -218,6 +235,9 @@ public class UtilAll {
         return (int) (crc32.getValue() & 0x7FFFFFFF);
     }
 
+    /**
+     * 字节数组转化成16进制形式
+     */
     public static String bytes2string(byte[] src) {
         char[] hexChars = new char[src.length * 2];
         for (int j = 0; j < src.length; j++) {
@@ -228,6 +248,9 @@ public class UtilAll {
         return new String(hexChars);
     }
 
+    /**
+     * 16进制字符串转化成字节数组
+     */
     public static byte[] string2bytes(String hexString) {
         if (hexString == null || hexString.equals("")) {
             return null;

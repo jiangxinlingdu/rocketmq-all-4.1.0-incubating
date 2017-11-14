@@ -22,13 +22,21 @@ import org.apache.rocketmq.common.constant.LoggerName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 后台服务线程基类
+ */
 public abstract class ServiceThread implements Runnable {
     private static final Logger STLOG = LoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
+ 
+    // 线程回收时间，默认90S
     private static final long JOIN_TIME = 90 * 1000;
 
+    // 执行线程
     protected final Thread thread;
     protected final CountDownLatch2 waitPoint = new CountDownLatch2(1);
+    // 是否已经被Notify过
     protected volatile AtomicBoolean hasNotified = new AtomicBoolean(false);
+    // 线程是否已经停止
     protected volatile boolean stopped = false;
 
     public ServiceThread() {

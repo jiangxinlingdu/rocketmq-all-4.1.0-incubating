@@ -22,6 +22,9 @@ import org.apache.rocketmq.common.annotation.ImportantField;
 import org.apache.rocketmq.common.constant.PermName;
 import org.apache.rocketmq.remoting.common.RemotingUtil;
 
+/**
+ * 服务器配置
+ */
 public class BrokerConfig {
     private String rocketmqHome = System.getProperty(MixAll.ROCKETMQ_HOME_PROPERTY, System.getenv(MixAll.ROCKETMQ_HOME_ENV));
     @ImportantField
@@ -37,12 +40,14 @@ public class BrokerConfig {
     private long brokerId = MixAll.MASTER_ID;
     private int brokerPermission = PermName.PERM_READ | PermName.PERM_WRITE;
     private int defaultTopicQueueNums = 8;
+    // 自动创建Topic功能是否开启（线上建议关闭）
     @ImportantField
     private boolean autoCreateTopicEnable = true;
-
+    // 自动创建以集群名字命名的Topic功能是否开启
     private boolean clusterTopicEnable = true;
-
+    // 自动创建以服务器名字命名的Topic功能是否开启
     private boolean brokerTopicEnable = true;
+    // 自动创建订阅组功能是否开启（线上建议关闭）
     @ImportantField
     private boolean autoCreateSubscriptionGroup = true;
     private String messageStorePlugIn = "";
@@ -60,21 +65,32 @@ public class BrokerConfig {
 
     private int flushConsumerOffsetHistoryInterval = 1000 * 60;
 
+    // 是否拒绝接收事务消息
     @ImportantField
     private boolean rejectTransactionMessage = false;
+    
+    // 是否从地址服务器寻找Name Server地址，正式发布后，默认值为false
     @ImportantField
     private boolean fetchNamesrvAddrByAddressServer = false;
+    
+    // 发送消息对应的线程池阻塞队列size
     private int sendThreadPoolQueueCapacity = 10000;
+    
+    // 订阅消息对应的线程池阻塞队列size
     private int pullThreadPoolQueueCapacity = 100000;
     private int clientManagerThreadPoolQueueCapacity = 1000000;
     private int consumerManagerThreadPoolQueueCapacity = 1000000;
 
+    // 过滤服务器数量
     private int filterServerNums = 0;
-
+ 
+    // Consumer订阅消息时，Broker是否开启长轮询
     private boolean longPollingEnable = true;
-
+    
+    // 如果是短轮询，服务器挂起时间
     private long shortPollingTimeMills = 1000;
 
+    // notify consumerId changed 开关
     private boolean notifyConsumerIdsChangedEnable = true;
 
     private boolean highSpeedMode = false;
