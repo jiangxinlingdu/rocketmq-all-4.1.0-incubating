@@ -534,10 +534,10 @@ public class CommitLog {
 
     public PutMessageResult putMessage(final MessageExtBrokerInner msg) {
         // Set the storage time
-        msg.setStoreTimestamp(System.currentTimeMillis());
+        msg.setStoreTimestamp(System.currentTimeMillis()); //设置存储时间
         // Set the message body BODY CRC (consider the most appropriate setting
         // on the client)
-        msg.setBodyCRC(UtilAll.crc32(msg.getBody()));
+        msg.setBodyCRC(UtilAll.crc32(msg.getBody())); //设置消息体CRC校验值
         // Back to Results
         AppendMessageResult result = null;
 
@@ -590,7 +590,7 @@ public class CommitLog {
                 return new PutMessageResult(PutMessageStatus.CREATE_MAPEDFILE_FAILED, null);
             }
 
-            result = mappedFile.appendMessage(msg, this.appendMessageCallback);
+            result = mappedFile.appendMessage(msg, this.appendMessageCallback); //交给MapedFile进行存储
             switch (result.getStatus()) {
                 case PUT_OK:
                     break;
@@ -632,20 +632,20 @@ public class CommitLog {
             this.defaultMessageStore.unlockMappedFile(unlockMappedFile);
         }
 
-        PutMessageResult putMessageResult = new PutMessageResult(PutMessageStatus.PUT_OK, result);
+        PutMessageResult putMessageResult = new PutMessageResult(PutMessageStatus.PUT_OK, result); //构建 PutMessageResult对象
 
         // Statistics
         storeStatsService.getSinglePutMessageTopicTimesTotal(msg.getTopic()).incrementAndGet();
         storeStatsService.getSinglePutMessageTopicSizeTotal(topic).addAndGet(result.getWroteBytes());
 
-        handleDiskFlush(result, putMessageResult, msg);
-        handleHA(result, putMessageResult, msg);
+        handleDiskFlush(result, putMessageResult, msg);   //处理同异步刷盘逻辑
+        handleHA(result, putMessageResult, msg); //处理主从双机同异步同步逻辑
 
         return putMessageResult;
     }
 
     public void handleDiskFlush(AppendMessageResult result, PutMessageResult putMessageResult, MessageExt messageExt) {
-        // Synchronization flush
+        // Synchronization flush  同步刷盘
         if (FlushDiskType.SYNC_FLUSH == this.defaultMessageStore.getMessageStoreConfig().getFlushDiskType()) {
             final GroupCommitService service = (GroupCommitService) this.flushCommitLogService;
             if (messageExt.isWaitStoreMsgOK()) {
@@ -661,7 +661,7 @@ public class CommitLog {
                 service.wakeup();
             }
         }
-        // Asynchronous flush
+        // Asynchronous flush  异步刷盘
         else {
             if (!this.defaultMessageStore.getMessageStoreConfig().isTransientStorePoolEnable()) {
                 flushCommitLogService.wakeup();
@@ -1169,6 +1169,7 @@ public class CommitLog {
         }
     }
 
+    //callback做append
     class DefaultAppendMessageCallback implements AppendMessageCallback {
         // File at the end of the minimum fixed length empty
         private static final int END_FILE_MIN_BLANK_LENGTH = 4 + 4;
@@ -1194,14 +1195,20 @@ public class CommitLog {
             return msgStoreItemMemory;
         }
 
+        //这个文件的offset，意思是：一个broker要存储很多消息，那么一个文件肯定不够存，当存到第二个文件的时候，这个文件里的第一条消息相对于整个broker中的消息有个offset，此值是文件名
+        //从store文件映射的buffer中slice的byteBuffer
+        //文件的剩余空间
+        //消息体
         public AppendMessageResult doAppend(final long fileFromOffset, final ByteBuffer byteBuffer, final int maxBlank,
             final MessageExtBrokerInner msgInner) {
             // STORETIMESTAMP + STOREHOSTADDRESS + OFFSET <br>
 
             // PHY OFFSET
-            long wroteOffset = fileFromOffset + byteBuffer.position();
+            long wroteOffset = fileFromOffset + byteBuffer.position();//计算wroteOffset 即整个broker中的offset， 代码注释中称之为物理offset，计算逻辑也很简单即上面参数1+这条消息在这个文件中的position
 
             this.resetByteBuffer(hostHolder, 8);
+            
+            //计算消息id，逻辑使用主机物理IP加上一步的wroteOffset计算，用了ByteBuffer处理，比较高效。
             String msgId = MessageDecoder.createMessageId(this.msgIdMemory, msgInner.getStoreHostBytes(hostHolder), wroteOffset);
 
             // Record ConsumeQueue information
@@ -1210,7 +1217,7 @@ public class CommitLog {
             keyBuilder.append('-');
             keyBuilder.append(msgInner.getQueueId());
             String key = keyBuilder.toString();
-            Long queueOffset = CommitLog.this.topicQueueTable.get(key);
+            Long queueOffset = CommitLog.this.topicQueueTable.get(key); //获取这个topic的这个队列的offset(一个topic写多个队列)
             if (null == queueOffset) {
                 queueOffset = 0L;
                 CommitLog.this.topicQueueTable.put(key, queueOffset);
@@ -1249,7 +1256,7 @@ public class CommitLog {
 
             final int bodyLength = msgInner.getBody() == null ? 0 : msgInner.getBody().length;
 
-            final int msgLen = calMsgLength(bodyLength, topicLength, propertiesLength);
+            final int msgLen = calMsgLength(bodyLength, topicLength, propertiesLength);//计算消息长度
 
             // Exceeds the maximum message
             if (msgLen > this.maxMessageSize) {
