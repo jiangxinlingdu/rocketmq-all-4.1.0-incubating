@@ -533,7 +533,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
         }
 
         Pair<NettyRequestProcessor, ExecutorService> pair = new Pair<NettyRequestProcessor, ExecutorService>(processor, executorThis);
-        this.processorTable.put(requestCode, pair);
+        this.processorTable.put(requestCode, pair); //注册RPC处理器
     }
 
     @Override
