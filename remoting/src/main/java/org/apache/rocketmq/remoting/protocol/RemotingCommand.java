@@ -182,7 +182,7 @@ public class RemotingCommand {
     }
 
     public static int getHeaderLength(int length) {
-        return length & 0xFFFFFF;
+        return length & 0xFFFFFF;   //取后24位
     }
 
     private static RemotingCommand headerDecode(byte[] headerData, SerializeType type) {
@@ -231,6 +231,8 @@ public class RemotingCommand {
     public static byte[] markProtocolType(int source, SerializeType type) {
         byte[] result = new byte[4];
 
+        //这个是把int 转换成字节
+        
         result[0] = type.getCode();
         result[1] = (byte) ((source >> 16) & 0xFF);
         result[2] = (byte) ((source >> 8) & 0xFF);
