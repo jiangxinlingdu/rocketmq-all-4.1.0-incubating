@@ -45,7 +45,7 @@ public class NamesrvController {
     private final NettyServerConfig nettyServerConfig;
     // 定时线程
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
-        "NSScheduledThread"));
+        "NSScheduledThread"));  //定时线程 以NSScheduledThread开头
     
     /**
      * 核心数据结构
@@ -81,7 +81,7 @@ public class NamesrvController {
         this.kvConfigManager.load();
 
        // 初始化通信层
-        this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.brokerHousekeepingService);
+        this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.brokerHousekeepingService);  //brokerHousekeepingService 接收Broker连接事件
 
         // 初始化固定线程池
         this.remotingExecutor =
