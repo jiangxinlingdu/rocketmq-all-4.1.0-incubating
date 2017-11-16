@@ -306,11 +306,13 @@ public class DefaultMessageStore implements MessageStore {
             this.printTimes.set(0);
         }
 
+        //topic长度校验 是否大于127
         if (msg.getTopic().length() > Byte.MAX_VALUE) {
             log.warn("putMessage message topic length too long " + msg.getTopic().length());
             return new PutMessageResult(PutMessageStatus.MESSAGE_ILLEGAL, null);
         }
 
+        //
         if (msg.getPropertiesString() != null && msg.getPropertiesString().length() > Short.MAX_VALUE) {
             log.warn("putMessage message properties length too long " + msg.getPropertiesString().length());
             return new PutMessageResult(PutMessageStatus.PROPERTIES_SIZE_EXCEEDED, null);
@@ -321,6 +323,7 @@ public class DefaultMessageStore implements MessageStore {
         }
 
         long beginTime = this.getSystemClock().now();
+        // 添加消息到commitLog
         PutMessageResult result = this.commitLog.putMessage(msg);
 
         long eclipseTime = this.getSystemClock().now() - beginTime;
@@ -1693,8 +1696,12 @@ public class DefaultMessageStore implements MessageStore {
         }
     }
 
+    /**
+     * SLAVE: 从物理队列Load消息，并分发到各个逻辑队列
+     */
     class ReputMessageService extends ServiceThread {
 
+    	// 从这里开始解析物理队列数据，并分发到逻辑队列
         private volatile long reputFromOffset = 0;
 
         public long getReputFromOffset() {
@@ -1741,6 +1748,8 @@ public class DefaultMessageStore implements MessageStore {
                 SelectMappedBufferResult result = DefaultMessageStore.this.commitLog.getData(reputFromOffset);
                 if (result != null) {
                     try {
+                    	 // 当主机有很多数据，备机没有数据时，此时启动备机，备机会从主机的末尾开始拉数据
+                        // 这时reputFromOffset的初始值和commitlog的值不匹配。
                         this.reputFromOffset = result.getStartOffset();
 
                         for (int readSize = 0; readSize < result.getSize() && doNext; ) {
@@ -1749,7 +1758,8 @@ public class DefaultMessageStore implements MessageStore {
                             int size = dispatchRequest.getMsgSize();
 
                             if (dispatchRequest.isSuccess()) {
-                                if (size > 0) {
+                            	// 正常数据
+                            	if (size > 0) {
                                     DefaultMessageStore.this.doDispatch(dispatchRequest);
 
                                     if (BrokerRole.SLAVE != DefaultMessageStore.this.getMessageStoreConfig().getBrokerRole()
@@ -1769,7 +1779,9 @@ public class DefaultMessageStore implements MessageStore {
                                             .getSinglePutMessageTopicSizeTotal(dispatchRequest.getTopic())
                                             .addAndGet(dispatchRequest.getMsgSize());
                                     }
-                                } else if (size == 0) {
+                                } 
+                            	// 走到文件末尾，切换至下一个文件
+                            	else if (size == 0) {
                                     this.reputFromOffset = DefaultMessageStore.this.commitLog.rollNextFile(this.reputFromOffset);
                                     readSize = result.getSize();
                                 }

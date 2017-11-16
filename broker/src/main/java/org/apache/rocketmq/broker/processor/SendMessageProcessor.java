@@ -69,20 +69,22 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
             case RequestCode.CONSUMER_SEND_MSG_BACK:
                 return this.consumerSendMsgBack(ctx, request);
             default:
+            	// 解析请求
                 SendMessageRequestHeader requestHeader = parseRequestHeader(request);
                 if (requestHeader == null) {
                     return null;
                 }
 
-             // 消息轨迹：记录到达 broker 的消息
+                // 消息轨迹：记录到达 broker 的消息
                 mqtraceContext = buildMsgContext(ctx, requestHeader);
+                //处理发送消息前逻辑
                 this.executeSendMessageHookBefore(ctx, request, mqtraceContext);
 
                 RemotingCommand response;
                 if (requestHeader.isBatch()) {
                     response = this.sendBatchMessage(ctx, request, mqtraceContext, requestHeader);
                 } else {
-                    response = this.sendMessage(ctx, request, mqtraceContext, requestHeader);
+                    response = this.sendMessage(ctx, request, mqtraceContext, requestHeader);// 处理发送消息逻辑
                 }
 
              // 消息轨迹：记录发送成功的消息
@@ -217,6 +219,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
             msgExt.setDelayTimeLevel(delayLevel);
         }
 
+        //构建 MessageExtBrokerInner
         MessageExtBrokerInner msgInner = new MessageExtBrokerInner();
         msgInner.setTopic(newTopic);
         msgInner.setBody(msgExt.getBody());
@@ -316,6 +319,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
         final SendMessageContext sendMessageContext, //
         final SendMessageRequestHeader requestHeader) throws RemotingCommandException {
 
+    	//init response
         final RemotingCommand response = RemotingCommand.createResponseCommand(SendMessageResponseHeader.class);
         final SendMessageResponseHeader responseHeader = (SendMessageResponseHeader) response.readCustomHeader();
 
@@ -346,7 +350,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
 
         int queueIdInt = requestHeader.getQueueId();
         TopicConfig topicConfig = this.brokerController.getTopicConfigManager().selectTopicConfig(requestHeader.getTopic());
-
+        // 如果队列小于0，从可用队列随机选择
         if (queueIdInt < 0) {
             queueIdInt = Math.abs(this.random.nextInt() % 99999999) % topicConfig.getWriteQueueNums();
         }

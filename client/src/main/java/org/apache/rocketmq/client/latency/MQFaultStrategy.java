@@ -24,11 +24,16 @@ import org.slf4j.Logger;
 
 public class MQFaultStrategy {
     private final static Logger log = ClientLogger.getLog();
+    //延迟故障容错，维护每个Broker的发送消息的延迟
     private final LatencyFaultTolerance<String> latencyFaultTolerance = new LatencyFaultToleranceImpl();
 
+    //发送消息延迟容错开关
     private boolean sendLatencyFaultEnable = false;
 
+    //延迟级别数组
     private long[] latencyMax = {50L, 100L, 550L, 1000L, 2000L, 3000L, 15000L};
+    
+    //不可用时长数组
     private long[] notAvailableDuration = {0L, 0L, 30000L, 60000L, 120000L, 180000L, 600000L};
 
     public long[] getNotAvailableDuration() {
@@ -59,7 +64,7 @@ public class MQFaultStrategy {
      * 选择队列的策略
      * @param tpInfo
      * @param lastBrokerName
-     * @return
+     * @return 消息队列
      */
     public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final String lastBrokerName) {
         if (this.sendLatencyFaultEnable) {

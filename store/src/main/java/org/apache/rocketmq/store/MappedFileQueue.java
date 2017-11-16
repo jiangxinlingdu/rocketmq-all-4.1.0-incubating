@@ -29,23 +29,29 @@ import org.apache.rocketmq.common.constant.LoggerName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 存储队列，数据定时删除，无限增长<br>
+ * 队列是由多个文件组成
+ */
 public class MappedFileQueue {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
     private static final Logger LOG_ERROR = LoggerFactory.getLogger(LoggerName.STORE_ERROR_LOGGER_NAME);
 
+    // 每次触发删除文件，最多删除多少个文件
     private static final int DELETE_FILES_BATCH_MAX = 10;
-
+    // 文件存储位置
     private final String storePath;
-
+    // 每个文件的大小
     private final int mappedFileSize;
-
+    // 各个文件
     private final CopyOnWriteArrayList<MappedFile> mappedFiles = new CopyOnWriteArrayList<MappedFile>();
-
+    // 预分配MapedFile对象服务
     private final AllocateMappedFileService allocateMappedFileService;
 
     private long flushedWhere = 0;
+    // 刷盘刷到哪里
     private long committedWhere = 0;
-
+    // 最后一条消息存储时间
     private volatile long storeTimestamp = 0;
 
     public MappedFileQueue(final String storePath, int mappedFileSize,
@@ -101,6 +107,9 @@ public class MappedFileQueue {
         return mfs;
     }
 
+    /**
+     * recover时调用，不需要加锁
+     */
     public void truncateDirtyFiles(long offset) {
         List<MappedFile> willRemoveFiles = new ArrayList<MappedFile>();
 
@@ -112,6 +121,7 @@ public class MappedFileQueue {
                     file.setCommittedPosition((int) (offset % this.mappedFileSize));
                     file.setFlushedPosition((int) (offset % this.mappedFileSize));
                 } else {
+                	// 将文件删除掉
                     file.destroy(1000);
                     willRemoveFiles.add(file);
                 }
@@ -121,6 +131,9 @@ public class MappedFileQueue {
         this.deleteExpiredFile(willRemoveFiles);
     }
 
+    /**
+     * 删除文件只能从头开始删
+     */
     void deleteExpiredFile(List<MappedFile> files) {
 
         if (!files.isEmpty()) {
@@ -151,13 +164,14 @@ public class MappedFileQueue {
             // ascending order
             Arrays.sort(files);
             for (File file : files) {
-
+            	// 校验文件大小是否匹配
                 if (file.length() != this.mappedFileSize) {
                     log.warn(file + "\t" + file.length()
                         + " length not matched message store config value, ignore it");
                     return true;
                 }
 
+             // 恢复队列
                 try {
                     MappedFile mappedFile = new MappedFile(file.getPath(), mappedFileSize);
 
@@ -176,6 +190,9 @@ public class MappedFileQueue {
         return true;
     }
 
+    /**
+     * 刷盘进度落后了多少
+     */
     public long howMuchFallBehind() {
         if (this.mappedFiles.isEmpty())
             return 0;
@@ -191,6 +208,9 @@ public class MappedFileQueue {
         return 0;
     }
 
+    /**
+     * 获取最后一个MapedFile对象，如果一个都没有，则新创建一个，如果最后一个写满了，则新创建一个
+     */
     public MappedFile getLastMappedFile(final long startOffset, boolean needCreate) {
         long createOffset = -1;
         MappedFile mappedFileLast = getLastMappedFile();
@@ -285,6 +305,9 @@ public class MappedFileQueue {
         return true;
     }
 
+    /**
+     * 获取队列的最小Offset，如果队列为空，则返回-1
+     */
     public long getMinOffset() {
 
         if (!this.mappedFiles.isEmpty()) {
@@ -323,6 +346,9 @@ public class MappedFileQueue {
         return getMaxOffset() - flushedWhere;
     }
 
+    /**
+     * 恢复时调用
+     */
     public void deleteLastMappedFile() {
         MappedFile lastMappedFile = getLastMappedFile();
         if (lastMappedFile != null) {
@@ -333,6 +359,9 @@ public class MappedFileQueue {
         }
     }
 
+    /**
+     * 根据文件过期时间来删除物理队列文件
+     */
     public int deleteExpiredFileByTime(final long expiredTime,
         final int deleteFilesInterval,
         final long intervalForcibly,
@@ -341,7 +370,8 @@ public class MappedFileQueue {
 
         if (null == mfs)
             return 0;
-
+        
+        // 最后一个文件处于写状态，不能删除
         int mfsLength = mfs.length - 1;
         int deleteCount = 0;
         List<MappedFile> files = new ArrayList<MappedFile>();
@@ -376,15 +406,22 @@ public class MappedFileQueue {
         return deleteCount;
     }
 
+    /**
+     * 根据物理队列最小Offset来删除逻辑队列
+     * 
+     * @param offset
+     *            物理队列最小offset
+     */
     public int deleteExpiredFileByOffset(long offset, int unitSize) {
         Object[] mfs = this.copyMappedFiles(0);
 
         List<MappedFile> files = new ArrayList<MappedFile>();
         int deleteCount = 0;
         if (null != mfs) {
-
+        	// 最后一个文件处于写状态，不能删除
             int mfsLength = mfs.length - 1;
 
+            // 这里遍历范围 0 ... last - 1
             for (int i = 0; i < mfsLength; i++) {
                 boolean destroy;
                 MappedFile mappedFile = (MappedFile) mfs[i];
@@ -392,6 +429,7 @@ public class MappedFileQueue {
                 if (result != null) {
                     long maxOffsetInLogicQueue = result.getByteBuffer().getLong();
                     result.release();
+                    // 当前文件是否可以删除
                     destroy = maxOffsetInLogicQueue < offset;
                     if (destroy) {
                         log.info("physic min offset " + offset + ", logics in current mappedFile max offset "
@@ -437,6 +475,9 @@ public class MappedFileQueue {
         return result;
     }
 
+    /**
+     * 返回值表示是否全部刷盘完成
+     */
     public boolean commit(final int commitLeastPages) {
         boolean result = true;
         MappedFile mappedFile = this.findMappedFileByOffset(this.committedWhere, false);
@@ -545,12 +586,18 @@ public class MappedFileQueue {
         return false;
     }
 
+    /**
+     * 关闭队列，队列数据还在，但是不能访问
+     */
     public void shutdown(final long intervalForcibly) {
         for (MappedFile mf : this.mappedFiles) {
             mf.shutdown(intervalForcibly);
         }
     }
 
+    /**
+     * 销毁队列，队列数据被删除，此函数有可能不成功
+     */
     public void destroy() {
         for (MappedFile mf : this.mappedFiles) {
             mf.destroy(1000 * 3);

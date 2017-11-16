@@ -45,10 +45,17 @@ import org.slf4j.LoggerFactory;
 public class CommitLog {
     // Message's MAGIC CODE daa320a7
     public final static int MESSAGE_MAGIC_CODE = 0xAABBCCDD ^ 1880681586 + 8;
+    
     private static final Logger log = LoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
+    
     // End of file empty MAGIC CODE cbd43194
     private final static int BLANK_MAGIC_CODE = 0xBBCCDDEE ^ 1880681586 + 8;
+    
+    
+    //MappedFile 所在的文件夹，对 MappedFile 进行封装成文件队列，对上层提供可无限使用的文件容量。
     private final MappedFileQueue mappedFileQueue;
+    
+    
     private final DefaultMessageStore defaultMessageStore;
     private final FlushCommitLogService flushCommitLogService;
 
