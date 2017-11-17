@@ -9,3 +9,4 @@
 # RocketMQ系列（其他系列请关注微信公众号）
 
 - [阿里 RocketMQ 优势对比](https://mp.weixin.qq.com/s/KfBruI-tOz-eJuM2fgqyew)
+- [源码阅读技巧篇](https://mp.weixin.qq.com/s/QDMPBVRB39_VBoU3BRUxKA)
