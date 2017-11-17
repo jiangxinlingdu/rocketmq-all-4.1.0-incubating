@@ -163,6 +163,7 @@ public class CommitLog {
     /**
      * When the normal exit, data recovery, all memory data have been flush
      */
+    //正常恢复CommitLog内存数据
     public void recoverNormally() {
         boolean checkCRCOnRecover = this.defaultMessageStore.getMessageStoreConfig().isCheckCRCOnRecover();
         final List<MappedFile> mappedFiles = this.mappedFileQueue.getMappedFiles();
@@ -382,6 +383,9 @@ public class CommitLog {
         return new DispatchRequest(-1, false /* success */);
     }
 
+    /**
+     * 计算消息长度
+     */
     private static int calMsgLength(int bodyLength, int topicLength, int propertiesLength) {
         final int msgLen = 4 // 1 TOTALSIZE
             + 4 // 2 MAGICCODE
