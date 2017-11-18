@@ -136,9 +136,9 @@ public class DefaultMessageStore implements MessageStore {
             this.transientStorePool.init();
         }
 
-        this.allocateMappedFileService.start();
+        this.allocateMappedFileService.start(); //MapedFile对象服务,执行线程run方法
 
-        this.indexService.start();
+        this.indexService.start(); //消息索引服务 空方法其实啥没做
 
         this.dispatcherList = new LinkedList<>();
         this.dispatcherList.addLast(new CommitLogDispatcherBuildConsumeQueue());

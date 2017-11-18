@@ -34,7 +34,7 @@ public class MessageStoreConfig {
         + File.separator + "commitlog";
 
     // CommitLog每个文件大小 1G
-    private int mapedFileSizeCommitLog = 1024 * 1024 * 1024;
+    private int mapedFileSizeCommitLog = 10 * 1024 * 1024;  //1024 * 1024 * 1024;  进行测试 把文件大小修改小点，便于查看文件
     // ConsumeQueue每个文件大小 默认存储30W条消息
     private int mapedFileSizeConsumeQueue = 300000 * ConsumeQueue.CQ_STORE_UNIT_SIZE;
     // enable consume queue ext

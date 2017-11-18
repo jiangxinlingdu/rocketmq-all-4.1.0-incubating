@@ -433,7 +433,7 @@ public class ConsumeQueue {
                 }
             }
             boolean result = this.putMessagePositionInfo(request.getCommitLogOffset(),
-                request.getMsgSize(), tagsCode, request.getConsumeQueueOffset());
+                request.getMsgSize(), tagsCode, request.getConsumeQueueOffset());  //存储消息的逻辑队列
             if (result) {
                 this.defaultMessageStore.getStoreCheckpoint().setLogicsMsgTimestamp(request.getStoreTimestamp());
                 return;
@@ -478,9 +478,9 @@ public class ConsumeQueue {
 
         this.byteBufferIndex.flip();
         this.byteBufferIndex.limit(CQ_STORE_UNIT_SIZE);
-        this.byteBufferIndex.putLong(offset);
-        this.byteBufferIndex.putInt(size);
-        this.byteBufferIndex.putLong(tagsCode);
+        this.byteBufferIndex.putLong(offset);//这条消息在commitLog文件实际偏移量
+        this.byteBufferIndex.putInt(size);//指消息大小
+        this.byteBufferIndex.putLong(tagsCode);//消息tag的哈希值
 
         final long expectLogicOffset = cqOffset * CQ_STORE_UNIT_SIZE;
 

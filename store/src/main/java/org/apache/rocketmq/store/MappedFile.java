@@ -173,7 +173,7 @@ public class MappedFile extends ReferenceResource {
         this.fileFromOffset = Long.parseLong(this.file.getName());
         boolean ok = false;
 
-        ensureDirOK(this.file.getParent());
+        ensureDirOK(this.file.getParent()); //确保目录存在，不存在就建立
 
         try {
             this.fileChannel = new RandomAccessFile(this.file, "rw").getChannel();  //初始化fileChannel
