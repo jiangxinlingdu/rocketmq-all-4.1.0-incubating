@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.store;
 
+/**
+ * 写入消息返回结果
+ */
 public class PutMessageResult {
     private PutMessageStatus putMessageStatus;
     private AppendMessageResult appendMessageResult;

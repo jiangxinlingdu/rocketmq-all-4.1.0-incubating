@@ -228,6 +228,7 @@ public class RemoteBrokerOffsetStore implements OffsetStore {
         }
     }
 
+    //根据broker name获取broker地址，之后根据topic，group name和queue id获取消费的位置
     private long fetchConsumeOffsetFromBroker(MessageQueue mq) throws RemotingException, MQBrokerException,
         InterruptedException, MQClientException {
         FindBrokerResult findBrokerResult = this.mQClientFactory.findBrokerAddressInAdmin(mq.getBrokerName());

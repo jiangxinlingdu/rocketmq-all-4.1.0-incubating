@@ -1400,6 +1400,7 @@ public class DefaultMessageStore implements MessageStore {
         }, 6, TimeUnit.SECONDS);
     }
 
+   
     class CommitLogDispatcherBuildConsumeQueue implements CommitLogDispatcher {
 
         @Override
@@ -1408,7 +1409,7 @@ public class DefaultMessageStore implements MessageStore {
             switch (tranType) {
                 case MessageSysFlag.TRANSACTION_NOT_TYPE:
                 case MessageSysFlag.TRANSACTION_COMMIT_TYPE:
-                    DefaultMessageStore.this.putMessagePositionInfo(request);
+                    DefaultMessageStore.this.putMessagePositionInfo(request);  //存消息位置信息
                     break;
                 case MessageSysFlag.TRANSACTION_PREPARED_TYPE:
                 case MessageSysFlag.TRANSACTION_ROLLBACK_TYPE:
@@ -1422,7 +1423,7 @@ public class DefaultMessageStore implements MessageStore {
         @Override
         public void dispatch(DispatchRequest request) {
             if (DefaultMessageStore.this.messageStoreConfig.isMessageIndexEnable()) {
-                DefaultMessageStore.this.indexService.buildIndex(request);
+                DefaultMessageStore.this.indexService.buildIndex(request); //建立索引
             }
         }
     }

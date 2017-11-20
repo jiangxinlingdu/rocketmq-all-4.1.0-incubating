@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * 消费队列实现
  */
 public class ConsumeQueue {
-    // 存储单元大小
+    // 存储单元大小 
     public static final int CQ_STORE_UNIT_SIZE = 20;
     private static final Logger log = LoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
     private static final Logger LOG_ERROR = LoggerFactory.getLogger(LoggerName.STORE_ERROR_LOGGER_NAME);
@@ -516,6 +516,7 @@ public class ConsumeQueue {
         return false;
     }
 
+    //用 BLANK占位 
     private void fillPreBlank(final MappedFile mappedFile, final long untilWhere) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(CQ_STORE_UNIT_SIZE);
         byteBuffer.putLong(0L);

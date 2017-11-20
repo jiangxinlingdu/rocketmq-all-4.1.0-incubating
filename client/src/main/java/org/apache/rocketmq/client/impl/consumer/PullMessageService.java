@@ -27,8 +27,13 @@ import org.apache.rocketmq.common.ServiceThread;
 import org.apache.rocketmq.common.utils.ThreadUtils;
 import org.slf4j.Logger;
 
+/**
+ * 拉取消息服务   它只是对拉取请求进行了封装，使其
+ */
 public class PullMessageService extends ServiceThread {
     private final Logger log = ClientLogger.getLog();
+    
+    //拉取消息请求队列
     private final LinkedBlockingQueue<PullRequest> pullRequestQueue = new LinkedBlockingQueue<PullRequest>();
     private final MQClientInstance mQClientFactory;
     private final ScheduledExecutorService scheduledExecutorService = Executors
@@ -70,6 +75,9 @@ public class PullMessageService extends ServiceThread {
         return scheduledExecutorService;
     }
 
+    /**
+     * 拉取消息
+     */
     private void pullMessage(final PullRequest pullRequest) {
         final MQConsumerInner consumer = this.mQClientFactory.selectConsumer(pullRequest.getConsumerGroup());
         if (consumer != null) {

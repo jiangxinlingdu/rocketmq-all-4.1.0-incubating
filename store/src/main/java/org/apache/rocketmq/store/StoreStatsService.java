@@ -27,45 +27,60 @@ import org.apache.rocketmq.common.ServiceThread;
 import org.apache.rocketmq.common.constant.LoggerName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/**
+ * 存储层内部统计服务
+ */
 public class StoreStatsService extends ServiceThread {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
 
+    // 采样频率，1秒钟采样一次 【命名特点 都大写】
     private static final int FREQUENCY_OF_SAMPLING = 1000;
-
+    // 采样最大记录数，
     private static final int MAX_RECORDS_OF_SAMPLING = 60 * 10;
     private static final String[] PUT_MESSAGE_ENTIRE_TIME_MAX_DESC = new String[] {
         "[<=0ms]", "[0~10ms]", "[10~50ms]", "[50~100ms]", "[100~200ms]", "[200~500ms]", "[500ms~1s]", "[1~2s]", "[2~3s]", "[3~4s]", "[4~5s]", "[5~10s]", "[10s~]",
     };
 
+    // 打印TPS数据间隔时间，单位秒，1分钟
     private static int printTPSInterval = 60 * 1;
 
+    // putMessage，失败次数
     private final AtomicLong putMessageFailedTimes = new AtomicLong(0);
 
+    // putMessage，调用总数
     private final Map<String, AtomicLong> putMessageTopicTimesTotal =
         new ConcurrentHashMap<String, AtomicLong>(128);
+ 
+    // putMessage，Message Size Total
     private final Map<String, AtomicLong> putMessageTopicSizeTotal =
         new ConcurrentHashMap<String, AtomicLong>(128);
 
+    // getMessage，调用总数
     private final AtomicLong getMessageTimesTotalFound = new AtomicLong(0);
     private final AtomicLong getMessageTransferedMsgCount = new AtomicLong(0);
     private final AtomicLong getMessageTimesTotalMiss = new AtomicLong(0);
+    // put最近10分钟采样
     private final LinkedList<CallSnapshot> putTimesList = new LinkedList<CallSnapshot>();
-
+    // get最近10分钟采样
     private final LinkedList<CallSnapshot> getTimesFoundList = new LinkedList<CallSnapshot>();
     private final LinkedList<CallSnapshot> getTimesMissList = new LinkedList<CallSnapshot>();
     private final LinkedList<CallSnapshot> transferedMsgCountList = new LinkedList<CallSnapshot>();
+    
+    // putMessage，耗时分布
     private volatile AtomicLong[] putMessageDistributeTime;
+    // 启动时间
     private long messageStoreBootTimestamp = System.currentTimeMillis();
+    // putMessage，写入整个消息耗时，含加锁竟争时间（单位毫秒）
     private volatile long putMessageEntireTimeMax = 0;
+    // getMessage，读取一批消息耗时，含加锁竟争时间（单位毫秒）
     private volatile long getMessageEntireTimeMax = 0;
     // for putMessageEntireTimeMax
     private ReentrantLock lockPut = new ReentrantLock();
     // for getMessageEntireTimeMax
     private ReentrantLock lockGet = new ReentrantLock();
-
+    // DispatchMessageService，缓冲区最大值
     private volatile long dispatchMaxBuffer = 0;
-
+    // 针对采样线程加锁
     private ReentrantLock lockSampling = new ReentrantLock();
     private long lastPrintTimestamp = System.currentTimeMillis();
 

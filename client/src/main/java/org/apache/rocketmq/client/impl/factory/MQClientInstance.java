@@ -949,6 +949,7 @@ public class MQClientInstance {
         this.rebalanceService.wakeup();
     }
 
+    //负载均衡
     public void doRebalance() {
         for (Map.Entry<String, MQConsumerInner> entry : this.consumerTable.entrySet()) {
             MQConsumerInner impl = entry.getValue();

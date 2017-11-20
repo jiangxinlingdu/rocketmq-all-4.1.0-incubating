@@ -51,7 +51,10 @@ public class BrokerStatsManager {
     public static final String COMMERCIAL_OWNER = "Owner";
     // Message Size limit for one api-calling count.
     public static final double SIZE_PER_COUNT = 64 * 1024;
-
+    
+    /**
+     * 读磁盘落后统计
+     */
     public static final String GROUP_GET_FALL_SIZE = "GROUP_GET_FALL_SIZE";
     public static final String GROUP_GET_FALL_TIME = "GROUP_GET_FALL_TIME";
     // Pull Message Latency
