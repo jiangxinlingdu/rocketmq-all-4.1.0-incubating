@@ -105,13 +105,13 @@ public abstract class ServiceThread implements Runnable {
     }
 
     public void wakeup() {
-        if (hasNotified.compareAndSet(false, true)) {
+        if (hasNotified.compareAndSet(false, true)) {  //CAS操作
             waitPoint.countDown(); // notify
         }
     }
 
     protected void waitForRunning(long interval) {
-        if (hasNotified.compareAndSet(true, false)) {
+        if (hasNotified.compareAndSet(true, false)) {  //CAS操作
             this.onWaitEnd();
             return;
         }
@@ -132,6 +132,7 @@ public abstract class ServiceThread implements Runnable {
     protected void onWaitEnd() {
     }
 
+    //这里的做法很优雅，类似jdk线程中的中断标记做法类似 只是一个标记 最后还是需要调用处进行判断是否下一步
     public boolean isStopped() {
         return stopped;
     }

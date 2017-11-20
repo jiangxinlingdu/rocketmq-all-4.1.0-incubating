@@ -109,7 +109,7 @@ public class DefaultMessageStore implements MessageStore {
 
     private final LinkedList<CommitLogDispatcher> dispatcherList;
 
-    public DefaultMessageStore(final MessageStoreConfig messageStoreConfig, final BrokerStatsManager brokerStatsManager,
+	public DefaultMessageStore(final MessageStoreConfig messageStoreConfig, final BrokerStatsManager brokerStatsManager,
         final MessageArrivingListener messageArrivingListener, final BrokerConfig brokerConfig) throws IOException {
         this.messageArrivingListener = messageArrivingListener;
         this.brokerConfig = brokerConfig;
@@ -198,7 +198,7 @@ public class DefaultMessageStore implements MessageStore {
     }
 
     /**
-     * @throws Exception
+     * @throws Exception n多线程启动工作
      */
     public void start() throws Exception {
         this.flushConsumeQueueService.start();
@@ -1673,7 +1673,9 @@ public class DefaultMessageStore implements MessageStore {
 
             while (!this.isStopped()) {
                 try {
-                    int interval = DefaultMessageStore.this.getMessageStoreConfig().getFlushIntervalConsumeQueue();
+                	//通过FlushConsumeQueueService每隔1s进行consumequeue文件刷盘检查
+                	
+                    int interval = DefaultMessageStore.this.getMessageStoreConfig().getFlushIntervalConsumeQueue(); //间隔时间
                     this.waitForRunning(interval);
                     this.doFlush(1);
                 } catch (Exception e) {
