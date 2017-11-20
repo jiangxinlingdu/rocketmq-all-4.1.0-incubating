@@ -41,13 +41,13 @@ public class IndexService {
     /** Maximum times to attempt index file creation. */
     private static final int MAX_TRY_IDX_CREATE = 3;
     private final DefaultMessageStore defaultMessageStore;
- // 索引配置
-    private final int hashSlotNum;
-    private final int indexNum;
-    private final String storePath;
- // 索引文件集合
+    // 索引配置
+    private final int hashSlotNum;  //槽位个数
+    private final int indexNum;//存储索引的最大个数
+    private final String storePath;//引文件indexFile存储的路径
+    // 索引文件集合
     private final ArrayList<IndexFile> indexFileList = new ArrayList<IndexFile>();
- // 读写锁（针对indexFileList）
+    // 读写锁（针对indexFileList）
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     public IndexService(final DefaultMessageStore store) {
@@ -58,6 +58,7 @@ public class IndexService {
             StorePathConfigHelper.getStorePathIndex(store.getMessageStoreConfig().getStorePathRootDir());
     }
 
+    //broker启动的时候加载本地IndexFile
     public boolean load(final boolean lastExitOK) {
         File dir = new File(this.storePath);
         File[] files = dir.listFiles();
@@ -205,10 +206,12 @@ public class IndexService {
         return new QueryOffsetResult(phyOffsets, indexLastUpdateTimestamp, indexLastUpdatePhyoffset);
     }
 
+    //构建索引key
     private String buildKey(final String topic, final String key) {
         return topic + "#" + key;
     }
 
+    //构建索引
     public void buildIndex(DispatchRequest req) {
         IndexFile indexFile = retryGetAndCreateIndexFile();
         if (indexFile != null) {

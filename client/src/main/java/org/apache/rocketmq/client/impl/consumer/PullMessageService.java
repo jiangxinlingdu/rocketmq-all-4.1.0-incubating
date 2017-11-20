@@ -74,7 +74,7 @@ public class PullMessageService extends ServiceThread {
         final MQConsumerInner consumer = this.mQClientFactory.selectConsumer(pullRequest.getConsumerGroup());
         if (consumer != null) {
             DefaultMQPushConsumerImpl impl = (DefaultMQPushConsumerImpl) consumer;
-            impl.pullMessage(pullRequest);
+            impl.pullMessage(pullRequest); //拉取消息
         } else {
             log.warn("No matched consumer for the PullRequest {}, drop it", pullRequest);
         }
@@ -84,11 +84,11 @@ public class PullMessageService extends ServiceThread {
     public void run() {
         log.info(this.getServiceName() + " service started");
 
-        while (!this.isStopped()) {
+        while (!this.isStopped()) { //没有停止
             try {
                 PullRequest pullRequest = this.pullRequestQueue.take();
                 if (pullRequest != null) {
-                    this.pullMessage(pullRequest);
+                    this.pullMessage(pullRequest); //一直循环发拉取消息的请求，过程中被pullRequestQueue阻塞队列阻塞。
                 }
             } catch (InterruptedException e) {
             } catch (Exception e) {

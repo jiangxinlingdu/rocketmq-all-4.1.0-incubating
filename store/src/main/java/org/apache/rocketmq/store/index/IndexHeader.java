@@ -21,9 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
-
- *
- *
+ *索引文件头
  */
 public class IndexHeader {
     public static final int INDEX_HEADER_SIZE = 40;
@@ -39,7 +37,7 @@ public class IndexHeader {
     private AtomicLong beginPhyOffset = new AtomicLong(0);
     private AtomicLong endPhyOffset = new AtomicLong(0);
     private AtomicInteger hashSlotCount = new AtomicInteger(0);
-
+    // 第一个索引是无效索引
     private AtomicInteger indexCount = new AtomicInteger(1);
 
     public IndexHeader(final ByteBuffer byteBuffer) {
@@ -60,6 +58,9 @@ public class IndexHeader {
         }
     }
 
+    /**
+     * 更新byteBuffer
+     */
     public void updateByteBuffer() {
         this.byteBuffer.putLong(beginTimestampIndex, this.beginTimestamp.get());
         this.byteBuffer.putLong(endTimestampIndex, this.endTimestamp.get());

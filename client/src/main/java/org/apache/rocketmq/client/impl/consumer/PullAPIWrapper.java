@@ -49,6 +49,9 @@ import org.apache.rocketmq.common.sysflag.PullSysFlag;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.slf4j.Logger;
 
+/**
+ * 拉取API封装
+ */
 public class PullAPIWrapper {
     private final Logger log = ClientLogger.getLog();
     private final MQClientInstance mQClientFactory;
@@ -192,6 +195,7 @@ public class PullAPIWrapper {
                 brokerAddr = computPullFromWhichFilterServer(mq.getTopic(), brokerAddr);
             }
 
+            // 请求拉取
             PullResult pullResult = this.mQClientFactory.getMQClientAPIImpl().pullMessage(
                 brokerAddr,
                 requestHeader,
