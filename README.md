@@ -10,3 +10,4 @@
 
 - [阿里 RocketMQ 优势对比](https://mp.weixin.qq.com/s/KfBruI-tOz-eJuM2fgqyew)
 - [源码阅读技巧篇](https://mp.weixin.qq.com/s/QDMPBVRB39_VBoU3BRUxKA)
+- [RocketMQ集群部署配置](http://mp.weixin.qq.com/s/SeN8cKPzjcOR4CRBYfzYGQ)
