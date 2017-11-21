@@ -1748,6 +1748,7 @@ public class DefaultMessageStore implements MessageStore {
                     break;
                 }
 
+                ////从CommitLog中读取上次偏移量之后的新消息
                 SelectMappedBufferResult result = DefaultMessageStore.this.commitLog.getData(reputFromOffset);
                 if (result != null) {
                     try {
@@ -1755,7 +1756,9 @@ public class DefaultMessageStore implements MessageStore {
                         // 这时reputFromOffset的初始值和commitlog的值不匹配。
                         this.reputFromOffset = result.getStartOffset();
 
+                        //顺序读
                         for (int readSize = 0; readSize < result.getSize() && doNext; ) {
+                        	//获取DispatchRequest【分发消息位置信息到逻辑队列和索引服务】
                             DispatchRequest dispatchRequest =
                                 DefaultMessageStore.this.commitLog.checkMessageAndReturnSize(result.getByteBuffer(), false, false);
                             int size = dispatchRequest.getMsgSize();

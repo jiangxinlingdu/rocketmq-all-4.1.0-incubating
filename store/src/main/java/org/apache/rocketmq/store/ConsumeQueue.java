@@ -163,6 +163,8 @@ public class ConsumeQueue {
 
     /**
      * 二分查找查找消息发送时间最接近timestamp逻辑队列的offset
+     * 
+     * ConsumeQueue中没有时间戳所以还是需要去CommitLog里面查找
      */
     public long getOffsetInQueueByTime(final long timestamp) {
         MappedFile mappedFile = this.mappedFileQueue.getMappedFileByTime(timestamp);
