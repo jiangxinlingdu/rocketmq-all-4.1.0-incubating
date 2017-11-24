@@ -463,12 +463,10 @@ public class ConsumeQueue {
     /**
      * 存储一个20字节的信息，putMessagePostionInfo只有一个线程调用，所以不需要加锁
      * 
-     * @param offset
-     *            消息对应的CommitLog offset
-     * @param size
-     *            消息在CommitLog存储的大小
-     * @param tagsCode
-     *            tags 计算出来的长整数
+     * @param offset  消息对应的CommitLog offset
+     * @param size 消息在CommitLog存储的大小
+     * @param tagsCode  tags 计算出来的长整数
+     * @param cqOffset ConsumeQueueOffset
      * @return 是否成功
      */
     private boolean putMessagePositionInfo(final long offset, final int size, final long tagsCode,

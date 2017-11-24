@@ -276,8 +276,11 @@ public class RemotingCommand {
                     String fieldName = field.getName();
                     if (!fieldName.startsWith("this")) {
                         try {
+                            //字段不允许为空
+                            //从扩展字段里面根据key取值，如果值为空，看看是否标记注解不为空，如果标记了那么表示有问题了
                             String value = this.extFields.get(fieldName);
                             if (null == value) {
+                                //进行了缓存 设计模式享元模式 欢迎参考【匠心零度】公众号文章，http://mp.weixin.qq.com/s/aMTVoawP_795kSio5ysh7Q
                                 Annotation annotation = getNotNullAnnotation(field);
                                 if (annotation != null) {
                                     throw new RemotingCommandException("the custom field <" + fieldName + "> is null");
