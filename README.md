@@ -12,3 +12,4 @@
 - [源码阅读技巧篇](https://mp.weixin.qq.com/s/QDMPBVRB39_VBoU3BRUxKA)
 - [RocketMQ集群部署配置](http://mp.weixin.qq.com/s/SeN8cKPzjcOR4CRBYfzYGQ)
 - [MQ 应用场景](https://mp.weixin.qq.com/s/PhUJoD5y9Fu7CxFSBmf29w)
+- [RocketMQ快速入门](http://mp.weixin.qq.com/s/1FVas9PbX-1jHLlaTA_6Qg)
