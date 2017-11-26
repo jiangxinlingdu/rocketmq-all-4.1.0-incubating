@@ -213,7 +213,7 @@ public class IndexService {
 
     //构建索引
     public void buildIndex(DispatchRequest req) {
-        IndexFile indexFile = retryGetAndCreateIndexFile();
+        IndexFile indexFile = retryGetAndCreateIndexFile();//如果indexFile有就获取没有就创建
         if (indexFile != null) {
             long endPhyOffset = indexFile.getEndPhyOffset();
             DispatchRequest msg = req;
@@ -263,12 +263,12 @@ public class IndexService {
         for (boolean ok = indexFile.putKey(idxKey, msg.getCommitLogOffset(), msg.getStoreTimestamp()); !ok; ) {
             log.warn("Index file [" + indexFile.getFileName() + "] is full, trying to create another one");
 
-            indexFile = retryGetAndCreateIndexFile();
+            indexFile = retryGetAndCreateIndexFile();//如果indexFile有就获取没有就创建
             if (null == indexFile) {
                 return null;
             }
 
-            ok = indexFile.putKey(idxKey, msg.getCommitLogOffset(), msg.getStoreTimestamp());
+            ok = indexFile.putKey(idxKey, msg.getCommitLogOffset(), msg.getStoreTimestamp());//写入索引消息
         }
 
         return indexFile;
@@ -336,7 +336,7 @@ public class IndexService {
             try {
                 String fileName =
                     this.storePath + File.separator
-                        + UtilAll.timeMillisToHumanString(System.currentTimeMillis());
+                        + UtilAll.timeMillisToHumanString(System.currentTimeMillis()); //fileName是以创建时的时间戳命名的
                 indexFile =
                     new IndexFile(fileName, this.hashSlotNum, this.indexNum, lastUpdateEndPhyOffset,
                         lastUpdateIndexTimestamp);

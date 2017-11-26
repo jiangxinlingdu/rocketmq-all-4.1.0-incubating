@@ -96,6 +96,7 @@ public class IndexFile {
     }
 
     /**
+     * 向indexFile中写入索引消息
      * 如果返回false，表示需要创建新的索引文件
      */
     public boolean putKey(final String key, final long phyOffset, final long storeTimestamp) {
