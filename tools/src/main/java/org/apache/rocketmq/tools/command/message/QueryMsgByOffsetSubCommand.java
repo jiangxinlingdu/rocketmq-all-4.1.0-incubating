@@ -28,7 +28,10 @@ import org.apache.rocketmq.tools.admin.DefaultMQAdminExt;
 import org.apache.rocketmq.tools.command.SubCommand;
 import org.apache.rocketmq.tools.command.SubCommandException;
 
-public class QueryMsgByOffsetSubCommand implements SubCommand {
+/**
+ * 根据消息Offset查询消息
+ */
+ public class QueryMsgByOffsetSubCommand implements SubCommand {
 
     @Override
     public String commandName() {

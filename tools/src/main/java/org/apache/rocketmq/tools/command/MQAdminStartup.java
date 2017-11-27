@@ -88,7 +88,7 @@ import org.slf4j.LoggerFactory;
 
         //PackageConflictDetect.detectFastjson();
 
-        initCommand();
+        initCommand();//初始化一些对象，加入subCommandList中
 
         try {
             initLogback();
@@ -160,7 +160,7 @@ import org.slf4j.LoggerFactory;
         initCommand(new QueryMsgByKeySubCommand());
         initCommand(new QueryMsgByUniqueKeySubCommand());
         initCommand(new QueryMsgByOffsetSubCommand());
-        initCommand(new QueryMsgByUniqueKeySubCommand());
+        initCommand(new QueryMsgByUniqueKeySubCommand());//还犯错误了，居然添加2次了
         initCommand(new PrintMessageSubCommand());
         initCommand(new PrintMessageByQueueCommand());
         initCommand(new SendMsgStatusCommand());

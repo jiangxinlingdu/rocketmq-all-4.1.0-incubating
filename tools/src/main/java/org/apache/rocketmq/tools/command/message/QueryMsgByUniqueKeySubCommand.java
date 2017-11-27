@@ -37,7 +37,10 @@ import org.apache.rocketmq.tools.admin.api.MessageTrack;
 import org.apache.rocketmq.tools.command.SubCommand;
 import org.apache.rocketmq.tools.command.SubCommandException;
 
-public class QueryMsgByUniqueKeySubCommand implements SubCommand {
+/**
+ * 根据消息Unique key查询消息
+ */
+ public class QueryMsgByUniqueKeySubCommand implements SubCommand {
 
     public static void queryById(final DefaultMQAdminExt admin, final String topic, final String msgId) throws MQClientException,
         RemotingException, MQBrokerException, InterruptedException, IOException {

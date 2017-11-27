@@ -32,16 +32,20 @@ import org.apache.rocketmq.tools.command.CommandUtil;
 import org.apache.rocketmq.tools.command.SubCommand;
 import org.apache.rocketmq.tools.command.SubCommandException;
 
-public class DeleteTopicSubCommand implements SubCommand {
+/**
+ * 删除Topic配置命令
+ */
+ public class DeleteTopicSubCommand implements SubCommand {
     public static void deleteTopic(final DefaultMQAdminExt adminExt,
         final String clusterName,
         final String topic
     ) throws InterruptedException, MQBrokerException, RemotingException, MQClientException {
-
+        // 删除 broker 上的 topic 信息
         Set<String> masterSet = CommandUtil.fetchMasterAddrByClusterName(adminExt, clusterName);
         adminExt.deleteTopicInBroker(masterSet, topic);
         System.out.printf("delete topic [%s] from cluster [%s] success.%n", topic, clusterName);
 
+        // 删除 NameServer 上的 topic 信息
         Set<String> nameServerSet = null;
         if (adminExt.getNamesrvAddr() != null) {
             String[] ns = adminExt.getNamesrvAddr().trim().split(";");

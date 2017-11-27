@@ -28,7 +28,10 @@ import org.apache.rocketmq.tools.command.CommandUtil;
 import org.apache.rocketmq.tools.command.SubCommand;
 import org.apache.rocketmq.tools.command.SubCommandException;
 
-public class UpdateSubGroupSubCommand implements SubCommand {
+/**
+ * 修改、创建订阅组配置命令
+ */
+ public class UpdateSubGroupSubCommand implements SubCommand {
 
     @Override
     public String commandName() {

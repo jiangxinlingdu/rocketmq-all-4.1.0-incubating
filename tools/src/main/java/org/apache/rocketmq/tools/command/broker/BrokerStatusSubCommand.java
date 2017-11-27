@@ -34,7 +34,10 @@ import org.apache.rocketmq.tools.command.CommandUtil;
 import org.apache.rocketmq.tools.command.SubCommand;
 import org.apache.rocketmq.tools.command.SubCommandException;
 
-public class BrokerStatusSubCommand implements SubCommand {
+/**
+ * 获取Broker运行时统计信息
+ */
+ public class BrokerStatusSubCommand implements SubCommand {
 
     @Override
     public String commandName() {
@@ -95,6 +98,7 @@ public class BrokerStatusSubCommand implements SubCommand {
         final boolean printBroker) throws InterruptedException, MQBrokerException, RemotingTimeoutException, RemotingSendRequestException, RemotingConnectException {
         KVTable kvTable = defaultMQAdminExt.fetchBrokerRuntimeStats(brokerAddr);
 
+        // 为了排序
         TreeMap<String, String> tmp = new TreeMap<String, String>();
         tmp.putAll(kvTable.getTable());
 
