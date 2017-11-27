@@ -69,7 +69,7 @@ public class TopicPublishInfo {
     }
 
     public MessageQueue selectOneMessageQueue(final String lastBrokerName) {
-        if (lastBrokerName == null) {
+        if (lastBrokerName == null) {//第一次进入就是空的
             return selectOneMessageQueue();
         } else {
             int index = this.sendWhichQueue.getAndIncrement();
