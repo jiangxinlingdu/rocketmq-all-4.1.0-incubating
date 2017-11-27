@@ -28,7 +28,10 @@ import org.apache.rocketmq.tools.admin.DefaultMQAdminExt;
 import org.apache.rocketmq.tools.command.SubCommand;
 import org.apache.rocketmq.tools.command.SubCommandException;
 
-public class GetConsumerStatusCommand implements SubCommand {
+/**
+ * 根据时间来设置消费进度，设置之前要关闭这个订阅组的所有consumer，设置完再启动，方可生效。
+ */
+ public class GetConsumerStatusCommand implements SubCommand {
     @Override
     public String commandName() {
         return "getConsumerStatus";
