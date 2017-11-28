@@ -214,8 +214,8 @@ public class TopicConfigManager extends ConfigManager {
             LOG.error("createTopicInSendMessageMethod exception", e);
         }
 
-        if (createNew) {
-            this.brokerController.registerBrokerAll(false, true);
+        if (createNew) {//新创建
+            this.brokerController.registerBrokerAll(false, true);//向 NameServer注册 Broker
         }
 
         return topicConfig;
