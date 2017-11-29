@@ -183,7 +183,7 @@ public class MQClientInstance {
         //无序
         else {
             List<QueueData> qds = route.getQueueDatas();
-            Collections.sort(qds);
+            Collections.sort(qds);//按照brokerName升序进行排序的
             for (QueueData qd : qds) {
                 if (PermName.isWriteable(qd.getPerm())) {
                     BrokerData brokerData = null;
@@ -204,7 +204,7 @@ public class MQClientInstance {
 
                     for (int i = 0; i < qd.getWriteQueueNums(); i++) {
                         MessageQueue mq = new MessageQueue(topic, qd.getBrokerName(), i);
-                        info.getMessageQueueList().add(mq);
+                        info.getMessageQueueList().add(mq);//由于brokerName是排序的，TopicPublishInfo里面的messageQueueList就是有序的了从小到大
                     }
                 }
             }
