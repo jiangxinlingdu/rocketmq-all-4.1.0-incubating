@@ -453,7 +453,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
             int times = 0;
             String[] brokersSent = new String[timesTotal];
             for (; times < timesTotal; times++) {
-                String lastBrokerName = null == mq ? null : mq.getBrokerName();
+                String lastBrokerName = null == mq ? null : mq.getBrokerName(); //第一次的确是null 但是如果第二次呢？ 所以这里存在的意义
                 MessageQueue tmpmq = this.selectOneMessageQueue(topicPublishInfo, lastBrokerName);//选择一个queue
                 if (tmpmq != null) {
                     mq = tmpmq;

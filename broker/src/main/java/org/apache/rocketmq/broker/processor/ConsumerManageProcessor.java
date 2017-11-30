@@ -37,7 +37,10 @@ import org.apache.rocketmq.remoting.protocol.RemotingCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConsumerManageProcessor implements NettyRequestProcessor {
+/**
+ * Consumer注册与注销管理
+ */
+ public class ConsumerManageProcessor implements NettyRequestProcessor {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
 
     private final BrokerController brokerController;
@@ -52,6 +55,7 @@ public class ConsumerManageProcessor implements NettyRequestProcessor {
         switch (request.getCode()) {
             case RequestCode.GET_CONSUMER_LIST_BY_GROUP:
                 return this.getConsumerListByGroup(ctx, request);
+            // 更新Consumer Offset
             case RequestCode.UPDATE_CONSUMER_OFFSET:
                 return this.updateConsumerOffset(ctx, request);
             case RequestCode.QUERY_CONSUMER_OFFSET:
@@ -108,6 +112,10 @@ public class ConsumerManageProcessor implements NettyRequestProcessor {
         final UpdateConsumerOffsetRequestHeader requestHeader =
             (UpdateConsumerOffsetRequestHeader) request
                 .decodeCommandCustomHeader(UpdateConsumerOffsetRequestHeader.class);
+
+        // 消息轨迹：记录已经消费成功并提交 offset 的消息记录
+
+
         this.brokerController.getConsumerOffsetManager().commitOffset(RemotingHelper.parseChannelRemoteAddr(ctx.channel()), requestHeader.getConsumerGroup(),
             requestHeader.getTopic(), requestHeader.getQueueId(), requestHeader.getCommitOffset());
         response.setCode(ResponseCode.SUCCESS);
@@ -129,21 +137,28 @@ public class ConsumerManageProcessor implements NettyRequestProcessor {
             this.brokerController.getConsumerOffsetManager().queryOffset(
                 requestHeader.getConsumerGroup(), requestHeader.getTopic(), requestHeader.getQueueId());
 
+        // 订阅组存在
         if (offset >= 0) {
             responseHeader.setOffset(offset);
             response.setCode(ResponseCode.SUCCESS);
             response.setRemark(null);
-        } else {
+        }
+        // 订阅组不存在
+        else {
             long minOffset =
                 this.brokerController.getMessageStore().getMinOffsetInQueue(requestHeader.getTopic(),
                     requestHeader.getQueueId());
+            // 订阅组不存在情况下，如果这个队列的消息最小Offset是0，则表示这个Topic上线时间不长，服务器堆积的数据也不多，那么这个订阅组就从0开始消费。
+            // 尤其对于Topic队列数动态扩容时，必须要从0开始消费。
             if (minOffset <= 0
                 && !this.brokerController.getMessageStore().checkInDiskByConsumeOffset(
                 requestHeader.getTopic(), requestHeader.getQueueId(), 0)) {
                 responseHeader.setOffset(0L);
                 response.setCode(ResponseCode.SUCCESS);
                 response.setRemark(null);
-            } else {
+            }
+            // 新版本服务器不做消费进度纠正
+            else {
                 response.setCode(ResponseCode.QUERY_NOT_FOUND);
                 response.setRemark("Not found, V3_0_6_SNAPSHOT maybe this group consumer boot first");
             }

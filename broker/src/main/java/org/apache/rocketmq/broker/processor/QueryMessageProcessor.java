@@ -38,7 +38,10 @@ import org.apache.rocketmq.store.SelectMappedBufferResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class QueryMessageProcessor implements NettyRequestProcessor {
+/**
+ * 查询消息请求处理
+ */
+ public class QueryMessageProcessor implements NettyRequestProcessor {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
 
     private final BrokerController brokerController;
@@ -93,6 +96,7 @@ public class QueryMessageProcessor implements NettyRequestProcessor {
         responseHeader.setIndexLastUpdatePhyoffset(queryMessageResult.getIndexLastUpdatePhyoffset());
         responseHeader.setIndexLastUpdateTimestamp(queryMessageResult.getIndexLastUpdateTimestamp());
 
+        // 说明找到消息
         if (queryMessageResult.getBufferTotalSize() > 0) {
             response.setCode(ResponseCode.SUCCESS);
             response.setRemark(null);
