@@ -44,7 +44,8 @@ public class Test {
             bb = ByteBuffer.wrap(data);
             long offset = bb.getLong(0);
 
-            System.out.printf(portInt+">>>>>>"+offset);//需要把ip剖析出来
+            System.out.println();
+            System.out.printf(InetAddress.getByAddress(ip)+"======="+portInt+">>>>>>"+offset);
         } catch (Exception e) {
             e.printStackTrace();
         }
