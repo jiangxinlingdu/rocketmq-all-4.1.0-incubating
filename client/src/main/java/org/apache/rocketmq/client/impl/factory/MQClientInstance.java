@@ -457,11 +457,14 @@ public class MQClientInstance {
         }
     }
 
+    /**
+     * 线程安全的发送心跳数据到Broker
+     */
     public void sendHeartbeatToAllBrokerWithLock() {
         if (this.lockHeartbeat.tryLock()) {
             try {
-                this.sendHeartbeatToAllBroker();
-                this.uploadFilterClassSource();
+                this.sendHeartbeatToAllBroker();//发送心跳数据到Broker
+                this.uploadFilterClassSource();//上传FilterClass源码
             } catch (final Exception e) {
                 log.error("sendHeartbeatToAllBroker exception", e);
             } finally {
