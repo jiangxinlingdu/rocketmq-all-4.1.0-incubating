@@ -36,9 +36,6 @@ public class Test {
             ByteBuffer bb = ByteBuffer.wrap(port);
             int portInt = bb.getInt(0);
 
-            bb.clear();
-            bb = ByteBuffer.wrap(ip);
-            int ipInt = bb.getInt(0);
             // offset
             byte[] data = UtilAll.string2bytes(msgId.substring(16, 32));
             bb = ByteBuffer.wrap(data);
