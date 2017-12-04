@@ -483,6 +483,9 @@ public class MQClientAPIImpl {
         }
     }
 
+    /**
+     * 处理发送响应
+     */
     private SendResult processSendResponse(//
         final String brokerName, //
         final Message msg, //
@@ -493,7 +496,9 @@ public class MQClientAPIImpl {
             case ResponseCode.FLUSH_SLAVE_TIMEOUT:
             case ResponseCode.SLAVE_NOT_AVAILABLE: {
                 // TODO LOG
+                //一些异常情况 应该记录日志
             }
+            //表示成功
             case ResponseCode.SUCCESS: {
                 SendStatus sendStatus = SendStatus.SEND_OK;
                 switch (response.getCode()) {
@@ -519,7 +524,7 @@ public class MQClientAPIImpl {
 
                 MessageQueue messageQueue = new MessageQueue(msg.getTopic(), brokerName, responseHeader.getQueueId());
 
-                String uniqMsgId = MessageClientIDSetter.getUniqID(msg);
+                String uniqMsgId = MessageClientIDSetter.getUniqID(msg); //就在这里获取的UNIQ_
                 if (msg instanceof MessageBatch) {
                     StringBuilder sb = new StringBuilder();
                     for (Message message : (MessageBatch) msg) {
@@ -529,7 +534,7 @@ public class MQClientAPIImpl {
                 }
                 SendResult sendResult = new SendResult(sendStatus,
                     uniqMsgId,
-                    responseHeader.getMsgId(), messageQueue, responseHeader.getQueueOffset());
+                    responseHeader.getMsgId(), messageQueue, responseHeader.getQueueOffset()); //构建sendResult
                 sendResult.setTransactionId(responseHeader.getTransactionId());
                 String regionId = response.getExtFields().get(MessageConst.PROPERTY_MSG_REGION);
                 String traceOn = response.getExtFields().get(MessageConst.PROPERTY_TRACE_SWITCH);
