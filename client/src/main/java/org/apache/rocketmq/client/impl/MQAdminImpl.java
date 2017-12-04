@@ -268,6 +268,10 @@ public class MQAdminImpl {
         }
     }
 
+    /**
+     * 通过断点查看rocketmq-console项目查询MessageId我们可以发现，只有offsetMsgId才是真正的这种规则的key，而msgId其实仅仅知识生成的UNIQ_KEY
+     * 这也是为什么用MessageDecoder.decodeMessageId端口号超限问题的原因
+     */
     protected QueryResult queryMessage(String topic, String key, int maxNum, long begin, long end, boolean isUniqKey) throws MQClientException,
         InterruptedException {
         TopicRouteData topicRouteData = this.mQClientFactory.getAnExistTopicRouteData(topic);
