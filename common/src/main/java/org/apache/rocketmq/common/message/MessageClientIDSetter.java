@@ -99,6 +99,9 @@ public class MessageClientIDSetter {
         return result;
     }
 
+    /**
+     * 创建设置UNIQ_id
+     */
     public static String createUniqID() {
         StringBuilder sb = new StringBuilder(LEN * 2);
         sb.append(FIX_STRING);
@@ -118,6 +121,9 @@ public class MessageClientIDSetter {
         return buffer.array();
     }
 
+    /**
+    *设置UNIQ_id
+     */
     public static void setUniqID(final Message msg) {
         if (msg.getProperty(MessageConst.PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX) == null) {
             msg.putProperty(MessageConst.PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX, createUniqID());

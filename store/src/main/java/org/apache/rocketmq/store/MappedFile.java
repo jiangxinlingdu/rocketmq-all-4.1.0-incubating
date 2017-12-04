@@ -220,10 +220,8 @@ public class MappedFile extends ReferenceResource {
     /**
      * 向MapedBuffer追加消息<br>
      * 
-     * @param messageExt
-     *            要追加的消息
-     * @param cb
-     *            用来对消息进行序列化，尤其对于依赖MapedFile Offset的属性进行动态序列化
+     * @param messageExt     要追加的消息
+     * @param cb    用来对消息进行序列化，尤其对于依赖MapedFile Offset的属性进行动态序列化
      * @return 是否成功，写入多少数据
      */
     public AppendMessageResult appendMessagesInner(final MessageExt messageExt, final AppendMessageCallback cb) {

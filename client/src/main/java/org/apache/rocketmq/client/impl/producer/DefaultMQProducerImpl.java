@@ -609,7 +609,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
             try {
                 //for MessageBatch,ID has been set in the generating process
                 if (!(msg instanceof MessageBatch)) {
-                    MessageClientIDSetter.setUniqID(msg);
+                    MessageClientIDSetter.setUniqID(msg);//设置设置UNIQ_id，所以当看见msgId的时候为什么解析不一样了懂了吧
                 }
 
                 int sysFlag = 0; //又是根据位来进行每位是啥的判断
