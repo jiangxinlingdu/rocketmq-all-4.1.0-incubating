@@ -13,3 +13,4 @@
 - [RocketMQ集群部署配置](http://mp.weixin.qq.com/s/SeN8cKPzjcOR4CRBYfzYGQ)
 - [MQ 应用场景](https://mp.weixin.qq.com/s/PhUJoD5y9Fu7CxFSBmf29w)
 - [RocketMQ快速入门](http://mp.weixin.qq.com/s/1FVas9PbX-1jHLlaTA_6Qg)
+- [java二进制相关基础 （关注匠心零度公众号进行获取）]()
