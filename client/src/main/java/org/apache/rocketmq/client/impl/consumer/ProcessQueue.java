@@ -79,7 +79,7 @@ public class ProcessQueue {
             try {
                 this.lockTreeMap.readLock().lockInterruptibly();
                 try {
-                    //默认超时时间设置的是15分钟 DefaultMQPushConsumer，consumeTimeout=15
+                    //默认超时时间设置的是15分钟 DefaultMQPushConsumer，consumeTimeout=15，这里有个尴尬的地方，可能刚刚好错过时间，那么执行的时间就是快30分钟了
                     if (!msgTreeMap.isEmpty() && System.currentTimeMillis() - Long.parseLong(MessageAccessor.getConsumeStartTimeStamp(msgTreeMap.firstEntry().getValue())) > pushConsumer.getConsumeTimeout() * 60 * 1000) {
                         msg = msgTreeMap.firstEntry().getValue();
                     } else {
