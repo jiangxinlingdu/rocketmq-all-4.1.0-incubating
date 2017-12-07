@@ -89,10 +89,11 @@ public class ConsumeMessageConcurrentlyService implements ConsumeMessageService 
 
             @Override
             public void run() {
-                cleanExpireMsg();
+                cleanExpireMsg();//清理过期消息
             }
 
         }, this.defaultMQPushConsumer.getConsumeTimeout(), this.defaultMQPushConsumer.getConsumeTimeout(), TimeUnit.MINUTES);
+        //定时计划15分钟周期   默认超时时间设置的是15分钟 DefaultMQPushConsumer，consumeTimeout=15
     }
 
     public void shutdown() {
@@ -251,6 +252,9 @@ public class ConsumeMessageConcurrentlyService implements ConsumeMessageService 
         }
     }
 
+    /**
+     * 清理过期消息
+     */
     private void cleanExpireMsg() {
         Iterator<Map.Entry<MessageQueue, ProcessQueue>> it =
             this.defaultMQPushConsumerImpl.getRebalanceImpl().getProcessQueueTable().entrySet().iterator();
