@@ -76,7 +76,7 @@ public class ClientConfig {
     }
 
     public void changeInstanceNameToPID() {
-        if (this.instanceName.equals("DEFAULT")) {
+        if (this.instanceName.equals("DEFAULT")) {//如果是没有设置默认，当前的进程号来表示instanceName，所以最小单位是进程
             this.instanceName = String.valueOf(UtilAll.getPid());
         }
     }
