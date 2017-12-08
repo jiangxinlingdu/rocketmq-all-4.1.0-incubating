@@ -66,7 +66,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
     public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws RemotingCommandException {
         SendMessageContext mqtraceContext;
         switch (request.getCode()) {
-            case RequestCode.CONSUMER_SEND_MSG_BACK:
+            case RequestCode.CONSUMER_SEND_MSG_BACK:   //Broker Consumer将处理不了的消息发回服务器
                 return this.consumerSendMsgBack(ctx, request);
             default:
             	// 解析请求

@@ -635,7 +635,6 @@ public class MQClientInstance {
                             // Update Pub info
                             {
                                 TopicPublishInfo publishInfo = topicRouteData2TopicPublishInfo(topic, topicRouteData);
-                                System.out.println(Thread.currentThread().getName()+"lrz"+JSON.toJSONString(publishInfo));
                                 publishInfo.setHaveTopicRouterInfo(true);
                                 Iterator<Entry<String, MQProducerInner>> it = this.producerTable.entrySet().iterator();
                                 while (it.hasNext()) {

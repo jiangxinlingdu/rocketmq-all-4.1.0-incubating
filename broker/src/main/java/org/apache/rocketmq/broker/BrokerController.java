@@ -45,7 +45,9 @@ import org.apache.rocketmq.broker.latency.BrokerFixedThreadPoolExecutor;
 import org.apache.rocketmq.broker.longpolling.NotifyMessageArrivingListener;
 import org.apache.rocketmq.broker.longpolling.PullRequestHoldService;
 import org.apache.rocketmq.broker.mqtrace.ConsumeMessageHook;
+import org.apache.rocketmq.broker.mqtrace.ConsumeMessageHookImpl;
 import org.apache.rocketmq.broker.mqtrace.SendMessageHook;
+import org.apache.rocketmq.broker.mqtrace.SendMessageHookImpl;
 import org.apache.rocketmq.broker.offset.ConsumerOffsetManager;
 import org.apache.rocketmq.broker.out.BrokerOuterAPI;
 import org.apache.rocketmq.broker.plugin.MessageStoreFactory;
@@ -400,8 +402,10 @@ public class BrokerController {
          * SendMessageProcessor
          */
     	//处理客户端发送消息的请求
-        SendMessageProcessor sendProcessor = new SendMessageProcessor(this); 
+        SendMessageProcessor sendProcessor = new SendMessageProcessor(this);
+        sendMessageHookList.add(new SendMessageHookImpl());
         sendProcessor.registerSendMessageHook(sendMessageHookList);
+        consumeMessageHookList.add(new ConsumeMessageHookImpl());
         sendProcessor.registerConsumeMessageHook(consumeMessageHookList);
 
         //RemotingServer在注册processor的时候，是根据RequestCode进行注册的。
