@@ -14,3 +14,4 @@
 - [MQ 应用场景](https://mp.weixin.qq.com/s/PhUJoD5y9Fu7CxFSBmf29w)
 - [RocketMQ快速入门](http://mp.weixin.qq.com/s/1FVas9PbX-1jHLlaTA_6Qg)
 - [java二进制相关基础 （关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
+- [NIO相关基础篇一 （关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
