@@ -40,22 +40,26 @@ import org.apache.rocketmq.store.DefaultMessageStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * HA服务，负责同步双写，异步复制功能
+ */
 public class HAService {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
-
+    // 客户端连接计数
     private final AtomicInteger connectionCount = new AtomicInteger(0);
-
+    // 存储客户端连接
     private final List<HAConnection> connectionList = new LinkedList<>();
-
+    // 接收新的Socket连接
     private final AcceptSocketService acceptSocketService;
-
+    // 顶层存储对象
     private final DefaultMessageStore defaultMessageStore;
-
+    // 异步通知
     private final WaitNotifyObject waitNotifyObject = new WaitNotifyObject();
+    // 写入到Slave的最大Offset
     private final AtomicLong push2SlaveMaxOffset = new AtomicLong(0);
-
+    // 主从复制通知服务
     private final GroupTransferService groupTransferService;
-
+    // Slave订阅对象
     private final HAClient haClient;
 
     public HAService(final DefaultMessageStore defaultMessageStore) throws IOException {
@@ -76,6 +80,9 @@ public class HAService {
         this.groupTransferService.putRequest(request);
     }
 
+    /**
+     * 判断主从之间数据传输是否正常
+     */
     public boolean isSlaveOK(final long masterPutWhere) {
         boolean result = this.connectionCount.get() > 0;
         result =
@@ -86,7 +93,7 @@ public class HAService {
     }
 
     /**
-
+     * 通知复制了部分数据
      */
     public void notifyTransferSome(final long offset) {
         for (long value = this.push2SlaveMaxOffset.get(); offset > value; ) {
@@ -248,7 +255,7 @@ public class HAService {
      * GroupTransferService Service
      */
     class GroupTransferService extends ServiceThread {
-
+        // 异步通知
         private final WaitNotifyObject notifyTransferObject = new WaitNotifyObject();
         private volatile List<CommitLog.GroupCommitRequest> requestsWrite = new ArrayList<>();
         private volatile List<CommitLog.GroupCommitRequest> requestsRead = new ArrayList<>();
@@ -322,14 +329,17 @@ public class HAService {
 
     class HAClient extends ServiceThread {
         private static final int READ_MAX_BUFFER_SIZE = 1024 * 1024 * 4;
+        // 主节点IP:PORT
         private final AtomicReference<String> masterAddress = new AtomicReference<>();
+        // 向Master汇报Slave最大Offset
         private final ByteBuffer reportOffset = ByteBuffer.allocate(8);
         private SocketChannel socketChannel;
         private Selector selector;
         private long lastWriteTimestamp = System.currentTimeMillis();
-
+        // Slave向Master汇报Offset，汇报到哪里
         private long currentReportedOffset = 0;
         private int dispatchPostion = 0;
+        // 从Master接收数据Buffer
         private ByteBuffer byteBufferRead = ByteBuffer.allocate(READ_MAX_BUFFER_SIZE);
         private ByteBuffer byteBufferBackup = ByteBuffer.allocate(READ_MAX_BUFFER_SIZE);
 
@@ -383,7 +393,7 @@ public class HAService {
         // }
 
         /**
-
+         * Buffer满了以后，重新整理一次
          */
         private void reallocateByteBuffer() {
             int remain = READ_MAX_BUFFER_SIZE - this.dispatchPostion;
@@ -450,7 +460,7 @@ public class HAService {
                     int bodySize = this.byteBufferRead.getInt(this.dispatchPostion + 8);
 
                     long slavePhyOffset = HAService.this.defaultMessageStore.getMaxPhyOffset();
-
+                    // 发生重大错误
                     if (slavePhyOffset != 0) {
                         if (slavePhyOffset != masterPhyOffset) {
                             log.error("master pushed offset not equal the max phy offset in slave, SLAVE: "
@@ -459,11 +469,13 @@ public class HAService {
                         }
                     }
 
+                    // 可以凑够一个请求
                     if (diff >= (msgHeaderSize + bodySize)) {
                         byte[] bodyData = new byte[bodySize];
                         this.byteBufferRead.position(this.dispatchPostion + msgHeaderSize);
                         this.byteBufferRead.get(bodyData);
 
+                        // 结果是否需要处理，暂时不处理
                         HAService.this.defaultMessageStore.appendToCommitLog(masterPhyOffset, bodyData);
 
                         this.byteBufferRead.position(readSocketPos);
@@ -489,6 +501,7 @@ public class HAService {
 
         private boolean reportSlaveMaxOffsetPlus() {
             boolean result = true;
+            // 只要本地有更新，就汇报最大物理Offset
             long currentPhyOffset = HAService.this.defaultMessageStore.getMaxPhyOffset();
             if (currentPhyOffset > this.currentReportedOffset) {
                 this.currentReportedOffset = currentPhyOffset;
@@ -516,6 +529,7 @@ public class HAService {
                     }
                 }
 
+                // 每次连接时，要重新拿到最大的Offset
                 this.currentReportedOffset = HAService.this.defaultMessageStore.getMaxPhyOffset();
 
                 this.lastWriteTimestamp = System.currentTimeMillis();
@@ -558,7 +572,7 @@ public class HAService {
             while (!this.isStopped()) {
                 try {
                     if (this.connectMaster()) {
-
+                        // 先汇报最大物理Offset || 定时心跳方式汇报
                         if (this.isTimeToReportOffset()) {
                             boolean result = this.reportSlaveMaxOffset(this.currentReportedOffset);
                             if (!result) {
@@ -566,17 +580,21 @@ public class HAService {
                             }
                         }
 
+                        // 等待应答
                         this.selector.select(1000);
 
+                        // 接收数据
                         boolean ok = this.processReadEvent();
                         if (!ok) {
                             this.closeMaster();
                         }
 
+                        // 只要本地有更新，就汇报最大物理Offset
                         if (!reportSlaveMaxOffsetPlus()) {
                             continue;
                         }
 
+                        // 检查Master的反向心跳
                         long interval =
                             HAService.this.getDefaultMessageStore().getSystemClock().now()
                                 - this.lastWriteTimestamp;

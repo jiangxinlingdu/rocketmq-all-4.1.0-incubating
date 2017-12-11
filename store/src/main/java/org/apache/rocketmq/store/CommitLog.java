@@ -655,6 +655,9 @@ public class CommitLog {
         return putMessageResult;
     }
 
+    /**
+     *刷盘逻辑
+     */
     public void handleDiskFlush(AppendMessageResult result, PutMessageResult putMessageResult, MessageExt messageExt) {
         // Synchronization flush  同步刷盘
         if (FlushDiskType.SYNC_FLUSH == this.defaultMessageStore.getMessageStoreConfig().getFlushDiskType()) {
@@ -943,6 +946,9 @@ public class CommitLog {
         }
     }
 
+    /**
+     * 刷盘抽象类
+     */
     abstract class FlushCommitLogService extends ServiceThread {
         protected static final int RETRY_TIMES_OVER = 10;
     }
@@ -1083,6 +1089,7 @@ public class CommitLog {
 
     /**
      * GroupCommit Service
+     * 同步刷盘
      */
     class GroupCommitService extends FlushCommitLogService {
         private volatile List<GroupCommitRequest> requestsWrite = new ArrayList<GroupCommitRequest>();
