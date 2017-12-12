@@ -1372,7 +1372,7 @@ public class CommitLog {
 
         public AppendMessageResult doAppend(final long fileFromOffset, final ByteBuffer byteBuffer, final int maxBlank,
             final MessageExtBatch messageExtBatch) {
-            byteBuffer.mark();
+            byteBuffer.mark();//可以标记byteBuffer中的一个特定position。用于reset恢复
             //physical offset
             long wroteOffset = fileFromOffset + byteBuffer.position();
             // Record ConsumeQueue information
@@ -1419,7 +1419,7 @@ public class CommitLog {
                     //ignore previous read
                     messagesByteBuff.reset();
                     // Here the length of the specially set maxBlank
-                    byteBuffer.reset(); //ignore the previous appended messages
+                    byteBuffer.reset(); //ignore the previous appended messages //恢复到byteBuffer.mark()标记时的position。
                     byteBuffer.put(this.msgStoreItemMemory.array(), 0, 8);
                     return new AppendMessageResult(AppendMessageStatus.END_OF_FILE, wroteOffset, maxBlank, msgIdBuilder.toString(), messageExtBatch.getStoreTimestamp(),
                         beginQueueOffset, CommitLog.this.defaultMessageStore.now() - beginTimeMills);
