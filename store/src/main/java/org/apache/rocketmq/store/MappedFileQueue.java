@@ -380,7 +380,7 @@ public class MappedFileQueue {
                 MappedFile mappedFile = (MappedFile) mfs[i];
                 long liveMaxTimestamp = mappedFile.getLastModifiedTimestamp() + expiredTime;
                 if (System.currentTimeMillis() >= liveMaxTimestamp || cleanImmediately) {
-                    if (mappedFile.destroy(intervalForcibly)) {
+                    if (mappedFile.destroy(intervalForcibly)) { //清理资源
                         files.add(mappedFile);
                         deleteCount++;
 

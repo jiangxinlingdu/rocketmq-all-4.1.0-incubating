@@ -1504,12 +1504,12 @@ public class DefaultMessageStore implements MessageStore {
 
         private void deleteExpiredFiles() {
             int deleteCount = 0;
-            long fileReservedTime = DefaultMessageStore.this.getMessageStoreConfig().getFileReservedTime();
-            int deletePhysicFilesInterval = DefaultMessageStore.this.getMessageStoreConfig().getDeleteCommitLogFilesInterval();
-            int destroyMapedFileIntervalForcibly = DefaultMessageStore.this.getMessageStoreConfig().getDestroyMapedFileIntervalForcibly();
+            long fileReservedTime = DefaultMessageStore.this.getMessageStoreConfig().getFileReservedTime();// 文件保留时间（单位小时）
+            int deletePhysicFilesInterval = DefaultMessageStore.this.getMessageStoreConfig().getDeleteCommitLogFilesInterval(); //删除多个CommitLog文件的间隔时间（单位毫秒）
+            int destroyMapedFileIntervalForcibly = DefaultMessageStore.this.getMessageStoreConfig().getDestroyMapedFileIntervalForcibly();//强制删除文件间隔时间（单位毫秒）
 
             boolean timeup = this.isTimeToDelete();
-            boolean spacefull = this.isSpaceToDelete();
+            boolean spacefull = this.isSpaceToDelete(); //空间是否满足
             boolean manualDelete = this.manualDeleteFileSeveralTimes > 0;
 
             // 删除物理队列文件
