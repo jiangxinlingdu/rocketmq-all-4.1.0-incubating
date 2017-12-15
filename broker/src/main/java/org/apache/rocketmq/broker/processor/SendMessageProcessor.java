@@ -93,6 +93,9 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
         }
     }
 
+    /**
+     * 流控
+     */
     @Override
     public boolean rejectRequest() {
         return this.brokerController.getMessageStore().isOSPageCacheBusy() ||
