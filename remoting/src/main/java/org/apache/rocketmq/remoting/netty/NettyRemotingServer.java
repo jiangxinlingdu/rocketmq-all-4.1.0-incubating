@@ -181,7 +181,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
                 });
 
         if (nettyServerConfig.isServerPooledByteBufAllocatorEnable()) {
-        	// 这个选项有可能会占用大量堆外内存，暂时不使用。
+        	// Netty4使用对象池，重用缓冲区
             childHandler.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         }
 
