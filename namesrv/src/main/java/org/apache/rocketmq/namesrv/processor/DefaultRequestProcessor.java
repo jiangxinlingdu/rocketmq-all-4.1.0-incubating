@@ -196,6 +196,7 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
         RegisterBrokerBody registerBrokerBody = new RegisterBrokerBody();
 
         if (request.getBody() != null) {
+            //把请求体 转换json之后转对象 body里面是什么到时候去broker里面去看他怎么和namesrv交互即可。
             registerBrokerBody = RegisterBrokerBody.decode(request.getBody(), RegisterBrokerBody.class);
         } else {
             registerBrokerBody.getTopicConfigSerializeWrapper().getDataVersion().setCounter(new AtomicLong(0));

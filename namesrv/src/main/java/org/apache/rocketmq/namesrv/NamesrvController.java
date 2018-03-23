@@ -87,6 +87,7 @@ public class NamesrvController {
         this.remotingExecutor =
             Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(), new ThreadFactoryImpl("RemotingExecutorThread_"));
 
+        //注册接收到请求之后具体的处理
         this.registerProcessor();
 
      // 增加定时任务
