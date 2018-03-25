@@ -113,6 +113,10 @@ public class SubscriptionGroupManager extends ConfigManager {
         this.persist();
     }
 
+    /**
+     * 不能消费，设置消费标记为false
+     * @param groupName
+     */
     public void disableConsume(final String groupName) {
         SubscriptionGroupConfig old = this.subscriptionGroupTable.get(groupName);
         if (old != null) {

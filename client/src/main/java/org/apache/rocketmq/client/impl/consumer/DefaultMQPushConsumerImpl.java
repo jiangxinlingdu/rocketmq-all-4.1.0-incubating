@@ -306,6 +306,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
                                     dispathToConsume);
 
                                 if (DefaultMQPushConsumerImpl.this.defaultMQPushConsumer.getPullInterval() > 0) {
+                                    //间隔多久执行PullRequest
                                     DefaultMQPushConsumerImpl.this.executePullRequestLater(pullRequest,
                                         DefaultMQPushConsumerImpl.this.defaultMQPushConsumer.getPullInterval());
                                 } else {
