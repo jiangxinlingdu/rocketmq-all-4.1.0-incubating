@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 
 /**
  * Remote storage implementation
+ * 消费进度。
  */
 public class RemoteBrokerOffsetStore implements OffsetStore {
     private final static Logger log = ClientLogger.getLog();

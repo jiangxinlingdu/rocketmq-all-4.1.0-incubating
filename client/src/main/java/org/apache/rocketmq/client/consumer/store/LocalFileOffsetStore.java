@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 
 /**
  * Local storage implementation
+ * 消费进度。
  */
 public class LocalFileOffsetStore implements OffsetStore {
     public final static String LOCAL_OFFSET_STORE_DIR = System.getProperty(

@@ -138,6 +138,7 @@ public class PullAPIWrapper {
         }
     }
 
+    //拉数据核心
     public PullResult pullKernelImpl(
         final MessageQueue mq,
         final String subExpression,
@@ -177,6 +178,7 @@ public class PullAPIWrapper {
                 sysFlagInner = PullSysFlag.clearCommitOffsetFlag(sysFlagInner);
             }
 
+            //构建PullMessageRequestHeader头信息
             PullMessageRequestHeader requestHeader = new PullMessageRequestHeader();
             requestHeader.setConsumerGroup(this.consumerGroup);
             requestHeader.setTopic(mq.getTopic());

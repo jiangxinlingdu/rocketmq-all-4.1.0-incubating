@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 
 /**
  * Queue consumption snapshot
+ * 消息处理队列
  */
 public class ProcessQueue {
     public final static long REBALANCE_LOCK_MAX_LIVE_TIME =

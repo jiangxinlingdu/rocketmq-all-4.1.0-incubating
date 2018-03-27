@@ -280,6 +280,7 @@ public abstract class RebalanceImpl {
 
                     List<MessageQueue> allocateResult = null;
                     try {
+                        //根据策略进行分配
                         allocateResult = strategy.allocate(//
                             this.consumerGroup, //
                             this.mQClientFactory.getClientId(), //
@@ -408,8 +409,10 @@ public abstract class RebalanceImpl {
 
     public abstract void removeDirtyOffset(final MessageQueue mq);
 
+    //计算消息队列开始消费位置
     public abstract long computePullFromWhere(final MessageQueue mq);
 
+    //
     public abstract void dispatchPullRequest(final List<PullRequest> pullRequestList);
 
     public void removeProcessQueue(final MessageQueue mq) {
