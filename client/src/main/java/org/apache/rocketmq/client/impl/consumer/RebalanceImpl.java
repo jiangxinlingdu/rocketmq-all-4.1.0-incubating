@@ -375,6 +375,7 @@ public abstract class RebalanceImpl {
 
                 this.removeDirtyOffset(mq);
                 ProcessQueue pq = new ProcessQueue();
+                //计算消息队列开始消费位置
                 long nextOffset = this.computePullFromWhere(mq);
                 if (nextOffset >= 0) {
                     ProcessQueue pre = this.processQueueTable.putIfAbsent(mq, pq);

@@ -306,6 +306,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
                                     pullRequest.getMessageQueue().getTopic(), pullResult.getMsgFoundList().size());
 
                                 boolean dispathToConsume = processQueue.putMessage(pullResult.getMsgFoundList());
+
                                 DefaultMQPushConsumerImpl.this.consumeMessageService.submitConsumeRequest(//
                                     pullResult.getMsgFoundList(), //
                                     processQueue, //
@@ -420,7 +421,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
                 subscriptionData.getExpressionType(), // 3
                 subscriptionData.getSubVersion(), // 4
                 pullRequest.getNextOffset(), // 5
-                this.defaultMQPushConsumer.getPullBatchSize(), // 6
+                this.defaultMQPushConsumer.getPullBatchSize(), // 6  一次拉多少
                 sysFlag, // 7
                 commitOffsetValue, // 8
                 BROKER_SUSPEND_MAX_TIME_MILLIS, // 9
@@ -495,6 +496,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
         log.info("resume this consumer, {}", this.defaultMQPushConsumer.getConsumerGroup());
     }
 
+    //失败消息发broker
     public void sendMessageBack(MessageExt msg, int delayLevel, final String brokerName)
         throws RemotingException, MQBrokerException, InterruptedException, MQClientException {
         try {
@@ -586,9 +588,11 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
                 } else {
                     switch (this.defaultMQPushConsumer.getMessageModel()) {
                         case BROADCASTING:
+                            //广播 选择LocalFileOffsetStore
                             this.offsetStore = new LocalFileOffsetStore(this.mQClientFactory, this.defaultMQPushConsumer.getConsumerGroup());
                             break;
                         case CLUSTERING:
+                            //集群模式选择 RemoteBrokerOffsetStore
                             this.offsetStore = new RemoteBrokerOffsetStore(this.mQClientFactory, this.defaultMQPushConsumer.getConsumerGroup());
                             break;
                         default:
@@ -636,6 +640,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
 
         this.updateTopicSubscribeInfoWhenSubscriptionChanged();
         this.mQClientFactory.checkClientInBroker();
+        //线程安全的发送心跳数据到Broker
         this.mQClientFactory.sendHeartbeatToAllBrokerWithLock();
         this.mQClientFactory.rebalanceImmediately();
     }

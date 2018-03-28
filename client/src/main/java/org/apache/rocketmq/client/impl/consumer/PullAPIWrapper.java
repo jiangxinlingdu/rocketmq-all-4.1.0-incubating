@@ -70,6 +70,7 @@ public class PullAPIWrapper {
         this.unitMode = unitMode;
     }
 
+    //处理拉取的结果
     public PullResult processPullResult(final MessageQueue mq, final PullResult pullResult,
         final SubscriptionData subscriptionData) {
         PullResultExt pullResultExt = (PullResultExt) pullResult;
@@ -98,6 +99,7 @@ public class PullAPIWrapper {
                 this.executeHook(filterMessageContext);
             }
 
+            //扩展信息 设置最小 最大offset
             for (MessageExt msg : msgListFilterAgain) {
                 MessageAccessor.putProperty(msg, MessageConst.PROPERTY_MIN_OFFSET,
                     Long.toString(pullResult.getMinOffset()));

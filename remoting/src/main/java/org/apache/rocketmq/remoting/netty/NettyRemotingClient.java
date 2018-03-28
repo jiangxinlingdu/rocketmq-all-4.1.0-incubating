@@ -379,6 +379,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
         return this.createChannel(addr);
     }
 
+    //就有取，没有就创建namessrv channel
     private Channel getAndCreateNameserverChannel() throws InterruptedException {
         String addr = this.namesrvAddrChoosed.get();
         if (addr != null) {
