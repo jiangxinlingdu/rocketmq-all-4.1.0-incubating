@@ -365,12 +365,15 @@ public class HAService {
         }
 
         private boolean reportSlaveMaxOffset(final long maxOffset) {
+            //为什么不clear呢
             this.reportOffset.position(0);
             this.reportOffset.limit(8);
             this.reportOffset.putLong(maxOffset);
+            //奇怪为什么不写flip呢？
             this.reportOffset.position(0);
             this.reportOffset.limit(8);
 
+            //发送失败了试三次，成功就成功
             for (int i = 0; i < 3 && this.reportOffset.hasRemaining(); i++) {
                 try {
                     this.socketChannel.write(this.reportOffset);
@@ -515,6 +518,7 @@ public class HAService {
             return result;
         }
 
+        //与Master进行连接
         private boolean connectMaster() throws ClosedChannelException {
             if (null == socketChannel) {
                 String addr = this.masterAddress.get();

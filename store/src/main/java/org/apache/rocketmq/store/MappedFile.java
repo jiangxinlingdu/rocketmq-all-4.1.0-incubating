@@ -322,8 +322,11 @@ public class MappedFile extends ReferenceResource {
                 try {
                     //We only append data to fileChannel or mappedByteBuffer, never both.
                     if (writeBuffer != null || this.fileChannel.position() != 0) {
+                        //强制将所有对此通道的文件更新写入包含该文件的存储设备中。
+                        //为此参数传入 false 指示只需将对文件内容的更新写入存储设备
                         this.fileChannel.force(false);
                     } else {
+                        //将此缓冲区所做的内容更改强制写入包含映射文件的存储设备中。
                         this.mappedByteBuffer.force();
                     }
                 } catch (Throwable e) {

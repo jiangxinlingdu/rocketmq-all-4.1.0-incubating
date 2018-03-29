@@ -1191,6 +1191,7 @@ public class AdminBrokerProcessor implements NettyRequestProcessor {
         return response;
     }
 
+    //准备运行时的broker的信息
     private HashMap<String, String> prepareRuntimeInfo() {
         HashMap<String, String> runtimeInfo = this.brokerController.getMessageStore().getRuntimeInfo();
         runtimeInfo.put("brokerVersionDesc", MQVersion.getVersionDesc(MQVersion.CURRENT_VERSION));
