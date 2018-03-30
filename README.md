@@ -23,7 +23,6 @@
 - [二进制实战技巧](http://mp.weixin.qq.com/s/-bcGP4kC1LWFBJydL6dBZA)
 - [NIO中的易筋经 （关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
 - [Netty初探（关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
-- [RocketMQ解惑篇](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
 - [分布式唯一id：snowflake算法思考 （关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
 - [Netty（一）：入门篇](https://mp.weixin.qq.com/s/APJBmqakodF7r0KTZwrkhw)
 - [Netty（二）：Netty为啥去掉支持AIO? （关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
