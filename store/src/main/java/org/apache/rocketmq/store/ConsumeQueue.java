@@ -183,7 +183,11 @@ public class ConsumeQueue {
             SelectMappedBufferResult sbr = mappedFile.selectMappedBuffer(0);
             if (null != sbr) {
                 ByteBuffer byteBuffer = sbr.getByteBuffer();
+
+                //减一个的时候才可以回答最后一个的开始⬇这样的了而不是在⬇
+                //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxoffsetsizetagcode
                 high = byteBuffer.limit() - CQ_STORE_UNIT_SIZE;
+
                 try {
                     while (high >= low) {
                         midOffset = (low + high) / (2 * CQ_STORE_UNIT_SIZE) * CQ_STORE_UNIT_SIZE;
@@ -191,6 +195,7 @@ public class ConsumeQueue {
                         long phyOffset = byteBuffer.getLong();
                         int size = byteBuffer.getInt();
                         if (phyOffset < minPhysicOffset) {
+                            //到下一个开始
                             low = midOffset + CQ_STORE_UNIT_SIZE;
                             leftOffset = midOffset;
                             continue;

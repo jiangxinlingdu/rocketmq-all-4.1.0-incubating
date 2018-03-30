@@ -28,7 +28,7 @@ import org.apache.rocketmq.common.UtilAll;
 public class Test {
     public static void main(String[] args) {
 
-        String msgId = "AC12052000002A9F0000000000000164";
+        String msgId = "AC1303C20010034B1D80986D3F547F09";
         try {
 
             byte[] ip = UtilAll.string2bytes(msgId.substring(0, 8));

@@ -165,6 +165,7 @@ public class IndexService {
         }
     }
 
+    //通过key查询就需要indexFile相关内容了
     public QueryOffsetResult queryOffset(String topic, String key, int maxNum, long begin, long end) {
         List<Long> phyOffsets = new ArrayList<Long>(maxNum);
 

@@ -70,6 +70,7 @@ import org.slf4j.LoggerFactory;
         return false;
     }
 
+    //查询消息
     public RemotingCommand queryMessage(ChannelHandlerContext ctx, RemotingCommand request)
         throws RemotingCommandException {
         final RemotingCommand response =

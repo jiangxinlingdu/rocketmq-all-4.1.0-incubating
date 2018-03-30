@@ -80,6 +80,7 @@ public class MappedFileQueue {
         }
     }
 
+    //这个不错
     public MappedFile getMappedFileByTime(final long timestamp) {
         Object[] mfs = this.copyMappedFiles(0);
 
