@@ -201,6 +201,7 @@ public class ConsumeQueue {
                             continue;
                         }
                         // 比较时间, 折半
+                        //是存储消息时间戳StoreTimestamp 而不是生成消息时间戳BornTimestamp
                         long storeTime =
                             this.defaultMessageStore.getCommitLog().pickupStoreTimestamp(phyOffset, size);
                         if (storeTime < 0) {

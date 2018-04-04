@@ -165,7 +165,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_SNDBUF, nettyServerConfig.getServerSocketSndBufSize())
                 .childOption(ChannelOption.SO_RCVBUF, nettyServerConfig.getServerSocketRcvBufSize())
-                .localAddress(new InetSocketAddress(this.nettyServerConfig.getListenPort())) //前面有设置nettyServerConfig.setListenPort(9876)操作
+                .localAddress(new InetSocketAddress(this.nettyServerConfig.getListenPort())) //比如namesrv前面有设置nettyServerConfig.setListenPort(9876)类似操作
                 //通常会为新SocketChannel通过添加一些handler，来设置ChannelPipeline。ChannelInitializer 是一个特殊的handler，其中initChannel方法可以为SocketChannel 的pipeline添加指定handler。
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
@@ -189,8 +189,6 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
             ChannelFuture sync = this.serverBootstrap.bind().sync();//通过绑定，就可以对外提供服务了。
             InetSocketAddress addr = (InetSocketAddress) sync.channel().localAddress();
             this.port = addr.getPort();
-            
-            //奇怪为什么没有关闭？？？？ 类似这样的  sync.channel().closeFuture().sync();
         } catch (InterruptedException e1) {
             throw new RuntimeException("this.serverBootstrap.bind().sync() InterruptedException", e1);
         }
@@ -312,6 +310,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
 
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, RemotingCommand msg) throws Exception {
+            //每当从服务端读到客户端写入信息时，将信息转发给其他客户端的 Channel。
             processMessageReceived(ctx, msg);
         }
     }

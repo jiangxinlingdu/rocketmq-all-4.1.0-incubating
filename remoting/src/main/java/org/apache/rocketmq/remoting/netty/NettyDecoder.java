@@ -32,7 +32,12 @@ public class NettyDecoder extends LengthFieldBasedFrameDecoder {
         Integer.parseInt(System.getProperty("com.rocketmq.remoting.frameMaxLength", "16777216"));
 
     public NettyDecoder() {
-        super(FRAME_MAX_LENGTH, 0, 4, 0, 4); //0,4,0,4   每一个0,4,这个是表示存放长度的变量的字节所占的长度，为4个，第二个4表示就是解码之后的数据包跳过的字节数为4,表示就将数据包的头部给去掉了。
+        super(FRAME_MAX_LENGTH, 0, 4, 0, 4);
+        //第一个参数是 maxFrameLength 表示的是包的最大长度
+        //第二个长度域的偏移量lengthFieldOffset，在这里是0，表示无偏移
+        //第三个参数指的是长度域长度lengthFieldLength，这里是4，表示长度域的长度为4
+        //第四个参数lengthAdjustment，包体长度调整的大小，这里是0 表示不需要调整
+        //第五个参数就是initialBytesToStrip，这里为4，表示忽略前面的四个字节，应用解码器拿到的就是不带长度域的数据包
     }
 
     @Override
@@ -55,7 +60,6 @@ public class NettyDecoder extends LengthFieldBasedFrameDecoder {
                 frame.release();
             }
         }
-
         return null;
     }
 }

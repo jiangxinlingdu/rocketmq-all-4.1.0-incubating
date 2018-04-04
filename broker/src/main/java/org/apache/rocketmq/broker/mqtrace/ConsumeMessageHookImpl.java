@@ -25,11 +25,11 @@ public class ConsumeMessageHookImpl implements ConsumeMessageHook {
     }
 
     @Override public void consumeMessageBefore(ConsumeMessageContext context) {
-        System.out.println("消费消息前，"+ JSON.toJSONString(context));
+        System.out.println("消费消息前，" + JSON.toJSONString(context));
 
     }
 
     @Override public void consumeMessageAfter(ConsumeMessageContext context) {
-        System.out.println("消费消息后，"+ JSON.toJSONString(context));
+        System.out.println("消费消息后，" + JSON.toJSONString(context));
     }
 }

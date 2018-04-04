@@ -4,8 +4,9 @@
 
 
 -------------
-# 加群交流RocketMQ
-**群号：10648794**
+# 加入知识星球，一起探讨
+
+![](https://upload-images.jianshu.io/upload_images/7849276-c411d9ace55d452c.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 
 # RocketMQ系列（其他系列请关注微信公众号）
