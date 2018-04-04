@@ -6,7 +6,7 @@
 -------------
 # 加入知识星球，一起探讨
 
-![知识星球](https://upload-images.jianshu.io/upload_images/7849276-c411d9ace55d452c.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![知识星球](https://upload-images.jianshu.io/upload_images/7849276-9c79c3497a248d0e.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640)
 
 
 # RocketMQ系列（其他系列请关注微信公众号）
