@@ -4,8 +4,9 @@
 
 
 -------------
-# 加群交流RocketMQ
-**群号：10648794**
+# 加入知识星球，一起探讨
+
+![知识星球](https://upload-images.jianshu.io/upload_images/7849276-9c79c3497a248d0e.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640)
 
 
 # RocketMQ系列（其他系列请关注微信公众号）
@@ -17,3 +18,12 @@
 - [RocketMQ快速入门](http://mp.weixin.qq.com/s/1FVas9PbX-1jHLlaTA_6Qg)
 - [java二进制相关基础 （关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
 - [NIO相关基础篇一 （关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
+- [RocketMQ解惑篇](http://mp.weixin.qq.com/s/EyuYRgUeeIDBpZFWihAAjQ)
+- [NIO相关基础篇二 （关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
+- [NIO相关基础篇三 （关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
+- [二进制实战技巧](http://mp.weixin.qq.com/s/-bcGP4kC1LWFBJydL6dBZA)
+- [NIO中的易筋经 （关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
+- [Netty初探（关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
+- [分布式唯一id：snowflake算法思考 （关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)
+- [Netty（一）：入门篇](https://mp.weixin.qq.com/s/APJBmqakodF7r0KTZwrkhw)
+- [Netty（二）：Netty为啥去掉支持AIO? （关注匠心零度公众号进行获取）](https://github.com/lirenzuo/rocketmq-rocketmq-all-4.1.0-incubating)

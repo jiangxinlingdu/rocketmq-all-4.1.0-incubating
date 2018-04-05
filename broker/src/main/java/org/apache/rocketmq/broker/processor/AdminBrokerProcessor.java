@@ -384,6 +384,7 @@ public class AdminBrokerProcessor implements NettyRequestProcessor {
         final SearchOffsetRequestHeader requestHeader =
             (SearchOffsetRequestHeader) request.decodeCommandCustomHeader(SearchOffsetRequestHeader.class);
 
+        //通过时间得到offset
         long offset = this.brokerController.getMessageStore().getOffsetInQueueByTime(requestHeader.getTopic(), requestHeader.getQueueId(),
             requestHeader.getTimestamp());
 
@@ -1006,7 +1007,7 @@ public class AdminBrokerProcessor implements NettyRequestProcessor {
                 selectMappedBufferResult.release();
             }
         }
-
+        //通过Broker直接向某个Consumer发送一条消息，并立刻消费，返回结果给broker，再返回给调用方
         return this.callConsumer(RequestCode.CONSUME_MESSAGE_DIRECTLY, request, requestHeader.getConsumerGroup(),
             requestHeader.getClientId());
     }
@@ -1191,6 +1192,7 @@ public class AdminBrokerProcessor implements NettyRequestProcessor {
         return response;
     }
 
+    //准备运行时的broker的信息
     private HashMap<String, String> prepareRuntimeInfo() {
         HashMap<String, String> runtimeInfo = this.brokerController.getMessageStore().getRuntimeInfo();
         runtimeInfo.put("brokerVersionDesc", MQVersion.getVersionDesc(MQVersion.CURRENT_VERSION));

@@ -676,6 +676,7 @@ public class MQClientAPIImpl {
 
     public long searchOffset(final String addr, final String topic, final int queueId, final long timestamp, final long timeoutMillis)
         throws RemotingException, MQBrokerException, InterruptedException {
+        //封装头信息
         SearchOffsetRequestHeader requestHeader = new SearchOffsetRequestHeader();
         requestHeader.setTopic(topic);
         requestHeader.setQueueId(queueId);

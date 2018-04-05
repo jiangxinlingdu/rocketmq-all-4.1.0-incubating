@@ -92,7 +92,7 @@ public class RemotingHelper {
                         throw new RemotingSendRequestException(addr);
                     }
                     
-                    // 比较土
+                    // 比较土,但是有效
                     Thread.sleep(1);
                 }
 

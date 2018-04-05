@@ -405,8 +405,6 @@ public class BrokerController {
         SendMessageProcessor sendProcessor = new SendMessageProcessor(this);
         sendMessageHookList.add(new SendMessageHookImpl());
         sendProcessor.registerSendMessageHook(sendMessageHookList);
-        consumeMessageHookList.add(new ConsumeMessageHookImpl());
-        sendProcessor.registerConsumeMessageHook(consumeMessageHookList);
 
         //RemotingServer在注册processor的时候，是根据RequestCode进行注册的。
         
@@ -422,6 +420,7 @@ public class BrokerController {
          * PullMessageProcessor  11  这个在分析consumer有关系
          */
         this.remotingServer.registerProcessor(RequestCode.PULL_MESSAGE, this.pullMessageProcessor, this.pullMessageExecutor);
+        consumeMessageHookList.add(new ConsumeMessageHookImpl());
         this.pullMessageProcessor.registerConsumeMessageHook(consumeMessageHookList);
 
         /**
@@ -724,6 +723,7 @@ public class BrokerController {
             topicConfigWrapper.setTopicConfigTable(topicConfigTable);
         }
 
+        //向 NameServer注册 Broker
         RegisterBrokerResult registerBrokerResult = this.brokerOuterAPI.registerBrokerAll(
             this.brokerConfig.getBrokerClusterName(),
             this.getBrokerAddr(),

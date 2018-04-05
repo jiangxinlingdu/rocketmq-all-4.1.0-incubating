@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 
 /**
  * Queue consumption snapshot
+ * 消息处理队列
  */
 public class ProcessQueue {
     public final static long REBALANCE_LOCK_MAX_LIVE_TIME =
@@ -67,6 +68,7 @@ public class ProcessQueue {
 
     /**
      * @param pushConsumer
+     * 清除超时的消息 防止有些一些消费不了，消费进度不变化情况。
      */
     public void cleanExpiredMsg(DefaultMQPushConsumer pushConsumer) {
         if (pushConsumer.getDefaultMQPushConsumerImpl().isConsumeOrderly()) {
@@ -119,6 +121,7 @@ public class ProcessQueue {
         }
     }
 
+    //putMessage 拉取到消息到消息处理队列中
     public boolean putMessage(final List<MessageExt> msgs) {
         boolean dispatchToConsume = false;
         try {

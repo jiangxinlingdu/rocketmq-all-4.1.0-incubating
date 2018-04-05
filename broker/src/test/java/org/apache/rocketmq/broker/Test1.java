@@ -15,21 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.rocketmq.broker.mqtrace;
+package org.apache.rocketmq.broker;
 
-import com.alibaba.fastjson.JSON;
+public class Test1 {
+    public static void main(String[] args) {
 
-public class ConsumeMessageHookImpl implements ConsumeMessageHook {
-    @Override public String hookName() {
-        return "ConsumeMessageHookImpl";
-    }
-
-    @Override public void consumeMessageBefore(ConsumeMessageContext context) {
-        System.out.println("消费消息前，" + JSON.toJSONString(context));
-
-    }
-
-    @Override public void consumeMessageAfter(ConsumeMessageContext context) {
-        System.out.println("消费消息后，" + JSON.toJSONString(context));
     }
 }

@@ -45,8 +45,8 @@ public class RemotingCommand {
     private static final int RPC_TYPE = 0; // 0, REQUEST_COMMAND
     // 1, RESPONSE_COMMAND
     
-    private static final int RPC_ONEWAY = 1; // 0, RPC
-    // 1, Oneway
+    private static final int RPC_ONEWAY = 1; // Oneway bit
+
     private static final Map<Class<? extends CommandCustomHeader>, Field[]> CLASS_HASH_MAP =
         new HashMap<Class<? extends CommandCustomHeader>, Field[]>();
     private static final Map<Class, String> CANONICAL_NAME_CACHE = new HashMap<Class, String>();
@@ -163,12 +163,12 @@ public class RemotingCommand {
     public static RemotingCommand decode(final ByteBuffer byteBuffer) {
         int length = byteBuffer.limit();  //获取字节缓冲区的整个长度，这个长度等于通信协议格式的2、3、4段的总长度
         int oriHeaderLen = byteBuffer.getInt(); //从缓冲区中读取4个字节的int类型的数据值 ，这个值就是报文头部的长度
-        int headerLength = getHeaderLength(oriHeaderLen);
+        int headerLength = getHeaderLength(oriHeaderLen);//取int后24位，前8位表示rpc类型 length & 0xFFFFFF; 取后24位
 
         byte[] headerData = new byte[headerLength];
         byteBuffer.get(headerData); //接下来从缓冲区中读取headerLength个字节的数据，这个数据就是报文头部的数据
 
-        RemotingCommand cmd = headerDecode(headerData, getProtocolType(oriHeaderLen));
+        RemotingCommand cmd = headerDecode(headerData, getProtocolType(oriHeaderLen)); //getProtocolType获取rpc类型之后按照该类型反序列化
 
         int bodyLength = length - 4 - headerLength;
         byte[] bodyData = null;
@@ -228,6 +228,7 @@ public class RemotingCommand {
         return true;
     }
 
+    //RPC类型和headerData长度用一个int表示
     public static byte[] markProtocolType(int source, SerializeType type) {
         byte[] result = new byte[4];
 
@@ -490,7 +491,7 @@ public class RemotingCommand {
 
     @JSONField(serialize = false)
     public RemotingCommandType getType() {
-        if (this.isResponseType()) {
+        if (this.isResponseType()) {//flag=1为true
             return RemotingCommandType.RESPONSE_COMMAND;
         }
 
