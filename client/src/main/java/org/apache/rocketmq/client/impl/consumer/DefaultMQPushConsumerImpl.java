@@ -642,6 +642,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
         this.mQClientFactory.checkClientInBroker();
         //线程安全的发送心跳数据到Broker
         this.mQClientFactory.sendHeartbeatToAllBrokerWithLock();
+        //马上rebalance
         this.mQClientFactory.rebalanceImmediately();
     }
 
