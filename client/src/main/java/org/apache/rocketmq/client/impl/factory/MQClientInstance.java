@@ -694,10 +694,10 @@ public class MQClientInstance {
             if (impl != null) {
                 ConsumerData consumerData = new ConsumerData();
                 consumerData.setGroupName(impl.groupName());
-                consumerData.setConsumeType(impl.consumeType());
-                consumerData.setMessageModel(impl.messageModel());
+                consumerData.setConsumeType(impl.consumeType());//消费类型 拉 推
+                consumerData.setMessageModel(impl.messageModel());//消费类型 广播 集群
                 consumerData.setConsumeFromWhere(impl.consumeFromWhere());
-                consumerData.getSubscriptionDataSet().addAll(impl.subscriptions());
+                consumerData.getSubscriptionDataSet().addAll(impl.subscriptions());//根据负载均衡之后的订阅信息
                 consumerData.setUnitMode(impl.isUnitMode());
 
                 heartbeatData.getConsumerDataSet().add(consumerData);
@@ -954,6 +954,7 @@ public class MQClientInstance {
         this.adminExtTable.remove(group);
     }
 
+    //立马负载均衡
     public void rebalanceImmediately() {
         this.rebalanceService.wakeup();
     }

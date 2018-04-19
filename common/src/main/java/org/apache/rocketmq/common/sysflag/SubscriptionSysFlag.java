@@ -16,6 +16,9 @@
  */
 package org.apache.rocketmq.common.sysflag;
 
+/**
+ * Subscription系统标记
+ */
 public class SubscriptionSysFlag {
 
     private final static int FLAG_UNIT = 0x1 << 0;

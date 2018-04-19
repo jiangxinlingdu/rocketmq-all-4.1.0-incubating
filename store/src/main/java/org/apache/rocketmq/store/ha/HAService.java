@@ -463,8 +463,9 @@ public class HAService {
                     int bodySize = this.byteBufferRead.getInt(this.dispatchPostion + 8);
 
                     long slavePhyOffset = HAService.this.defaultMessageStore.getMaxPhyOffset();
-                    // 发生重大错误
+
                     if (slavePhyOffset != 0) {
+                        // 发生重大错误
                         if (slavePhyOffset != masterPhyOffset) {
                             log.error("master pushed offset not equal the max phy offset in slave, SLAVE: "
                                 + slavePhyOffset + " MASTER: " + masterPhyOffset);
@@ -578,7 +579,7 @@ public class HAService {
                     if (this.connectMaster()) {
                         // 先汇报最大物理Offset || 定时心跳方式汇报
                         if (this.isTimeToReportOffset()) {
-                            boolean result = this.reportSlaveMaxOffset(this.currentReportedOffset);
+                            boolean result = this.reportSlaveMaxOffset(this.currentReportedOffset);//上报master
                             if (!result) {
                                 this.closeMaster();
                             }

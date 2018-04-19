@@ -399,7 +399,7 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
         return response;
     }
     /**
-     * 获取所有系统内置 Topic 列表
+     * 获取所有系统内置 Topic 列表 TopicSysFlag有用了
      */
     private RemotingCommand getSystemTopicListFromNs(ChannelHandlerContext ctx, RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -412,7 +412,7 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
         return response;
     }
     /**
-     * 获取单元化逻辑 Topic 列表
+     * 获取单元化逻辑 Topic 列表 TopicSysFlag有用了
      */
     private RemotingCommand getUnitTopicList(ChannelHandlerContext ctx, RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -425,7 +425,7 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
         return response;
     }
     /**
-     * 获取含有单元化订阅组的 Topic 列表
+     * 获取含有单元化订阅组的 Topic 列表 TopicSysFlag有用了
      */
     private RemotingCommand getHasUnitSubTopicList(ChannelHandlerContext ctx, RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(null);
@@ -438,7 +438,7 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
         return response;
     }
     /**
-     * 获取含有单元化订阅组的非单元化 Topic 列表
+     * 获取含有单元化订阅组的非单元化 Topic 列表 TopicSysFlag有用了
      */
     private RemotingCommand getHasUnitSubUnUnitTopicList(ChannelHandlerContext ctx, RemotingCommand request)
         throws RemotingCommandException {

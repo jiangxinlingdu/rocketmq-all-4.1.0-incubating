@@ -218,7 +218,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
      // 继续重试
         else {
             if (0 == delayLevel) {
-                delayLevel = 3 + msgExt.getReconsumeTimes();
+                delayLevel = 3 + msgExt.getReconsumeTimes();//每失败一次 延迟级别上次一个档次从3级（10s）别开始
             }
 
             msgExt.setDelayTimeLevel(delayLevel);

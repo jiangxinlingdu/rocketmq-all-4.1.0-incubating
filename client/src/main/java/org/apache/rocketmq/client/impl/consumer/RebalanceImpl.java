@@ -215,6 +215,7 @@ public abstract class RebalanceImpl {
         }
     }
 
+    //负载均衡
     public void doRebalance(final boolean isOrder) {
         Map<String, SubscriptionData> subTable = this.getSubscriptionInner();
         if (subTable != null) {
