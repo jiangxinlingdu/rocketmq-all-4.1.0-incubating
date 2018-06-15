@@ -678,10 +678,12 @@ public class BrokerController {
             this.brokerOuterAPI.start();
         }
 
+        //拉消息请求管理
         if (this.pullRequestHoldService != null) {
             this.pullRequestHoldService.start();
         }
 
+        //定期检测客户端连接
         if (this.clientHousekeepingService != null) {
             this.clientHousekeepingService.start();
         }
@@ -710,6 +712,7 @@ public class BrokerController {
         }
 
         if (this.brokerFastFailure != null) {
+            //broker快速失败
             this.brokerFastFailure.start();
         }
     }
