@@ -280,6 +280,7 @@ public class BrokerController {
                 @Override
                 public void run() {
                     try {
+                        //Broker上的一些统计数据
                         BrokerController.this.getBrokerStats().record();
                     } catch (Throwable e) {
                         log.error("schedule record error.", e);
@@ -291,6 +292,7 @@ public class BrokerController {
                 @Override
                 public void run() {
                     try {
+                        //消费进度持久化
                         BrokerController.this.consumerOffsetManager.persist();
                     } catch (Throwable e) {
                         log.error("schedule persist consumerOffset error.", e);
@@ -302,6 +304,7 @@ public class BrokerController {
                 @Override
                 public void run() {
                     try {
+                        //消费过滤持久化
                         BrokerController.this.consumerFilterManager.persist();
                     } catch (Throwable e) {
                         log.error("schedule persist consumer filter error.", e);
@@ -313,6 +316,7 @@ public class BrokerController {
                 @Override
                 public void run() {
                     try {
+                        //保护broker
                         BrokerController.this.protectBroker();
                     } catch (Exception e) {
                         log.error("protectBroker error.", e);
@@ -324,6 +328,7 @@ public class BrokerController {
                 @Override
                 public void run() {
                     try {
+                        //打印标记信息
                         BrokerController.this.printWaterMark();
                     } catch (Exception e) {
                         log.error("printWaterMark error.", e);
@@ -336,6 +341,7 @@ public class BrokerController {
                 @Override
                 public void run() {
                     try {
+                        //纯粹打印日志  dispatch落后commit多少字节
                         log.info("dispatch behind commit log {} bytes", BrokerController.this.getMessageStore().dispatchBehindBytes());
                     } catch (Throwable e) {
                         log.error("schedule dispatchBehindBytes error.", e);
@@ -373,6 +379,7 @@ public class BrokerController {
                     @Override
                     public void run() {
                         try {
+                            //slave 定期同步
                             BrokerController.this.slaveSynchronize.syncAll();
                         } catch (Throwable e) {
                             log.error("ScheduledTask syncAll slave exception", e);
@@ -385,6 +392,7 @@ public class BrokerController {
                     @Override
                     public void run() {
                         try {
+                            //打印master与slave的差距
                             BrokerController.this.printMasterAndSlaveDiff();
                         } catch (Throwable e) {
                             log.error("schedule printMasterAndSlaveDiff error.", e);
